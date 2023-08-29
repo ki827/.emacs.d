@@ -11,6 +11,7 @@
 	dired-use-ls-dired nil))
 
 (setq image-types (cons 'svg image-types)
+      auto-save-visited-file-name t
       inhibit-startup-screen t
       backup-directory-alist '(("." . "~/.emacs.d/backups/")))
 (global-display-line-numbers-mode t)
@@ -28,5 +29,19 @@
   (when (file-directory-p "~/.emacs.d/lisp")
     (find-file "~/.emacs.d/lisp")))
 (global-set-key (kbd "C-c e l") 'open-elisp-dir)
+
+(defun open-emacs-dir()
+  ;;; open ~/.emacs.d
+  (interactive)
+  (when (file-exists-p "~/.emacs.d")
+    (find-file "~/.emacs.d")))
+(global-set-key (kbd "C-c e d") 'open-emacs-dir)
+
+(defun open-emacs-init()
+  ;;; open ~/.emacs.d/init.el
+  (interactive)
+  (when (file-exists-p "~/.emacs.d/init.el")
+    (find-file "~/.emacs.d/init.el")))
+(global-set-key (kbd "C-c e i") 'open-emacs-init)
 
 (provide 'init-basic)

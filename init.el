@@ -7,3 +7,4 @@
 (require 'init-org)
 (require 'init-vertico)
 (require 'init-eglot)
+(require 'init-yasnippet)
