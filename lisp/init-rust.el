@@ -2,6 +2,8 @@
   :ensure t
   :config
   (setq rust-format-on-save t)
-  (add-hook 'rust-mode-hook 'eglot-ensure))
+  :hook
+  ((rust-mode . eglot-ensure)
+   (rust-mode . (lambda () (prettify-symbols-mode)))))
 
 (provide 'init-rust)
