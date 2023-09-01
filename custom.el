@@ -5,7 +5,7 @@
  ;; If there is more than one, they won't work right.
  '(org-agenda-files '("~/project/brokersview/task.org"))
  '(package-selected-packages
-   '(yasnippet-snippets yasnippet eglot orderless vertico rust-mode company)))
+   '(ace-window go-mode yasnippet-snippets yasnippet eglot orderless vertico rust-mode company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
