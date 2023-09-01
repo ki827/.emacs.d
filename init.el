@@ -9,3 +9,5 @@
 (require 'init-rust)
 (require 'init-yasnippet)
 (require 'init-flymake)
+(require 'init-go)
+(require 'init-window)
