@@ -11,7 +11,4 @@
   :hook
   ((prog-mode . company-mode)))
 
-
-
-
 (provide 'init-company)
