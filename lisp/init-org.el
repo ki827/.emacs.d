@@ -8,7 +8,8 @@
    '((C . t)
      (java . t)
      (plantuml . t)))
-  
+  (nconc org-babel-default-header-args:java
+       '((:dir . nil)))
   :bind
   (("C-c o a" . 'org-agenda)))
 
