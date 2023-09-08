@@ -11,3 +11,4 @@
 (require 'init-flymake)
 (require 'init-go)
 (require 'init-window)
+(require 'init-plantuml)
