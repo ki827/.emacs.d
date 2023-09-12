@@ -8,7 +8,9 @@
 	mac-right-command-modifier 'ctrl
 	mac-option-modifier 'meta
 	mac-right-option-modifier 'meta
-	dired-use-ls-dired nil))
+	dired-use-ls-dired nil
+	completion-ignored-extensions (cons ".DS_Store" completion-ignored-extensions)))
+
 
 (setq image-types (cons 'svg image-types)
       auto-save-visited-file-name t

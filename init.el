@@ -12,3 +12,5 @@
 (require 'init-go)
 (require 'init-window)
 (require 'init-plantuml)
+(require 'init-trash)
+(require 'init-markdown)
