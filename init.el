@@ -14,4 +14,5 @@
 (require 'init-plantuml)
 (require 'init-trash)
 (require 'init-markdown)
+(require 'init-evil)
 ;;; (require 'init-orderless)
