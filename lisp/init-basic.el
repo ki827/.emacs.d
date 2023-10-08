@@ -45,4 +45,6 @@
     (find-file "~/.emacs.d/init.el")))
 (global-set-key (kbd "C-c e i") 'open-emacs-init)
 
+(add-hook 'window-setup-hook #'toggle-frame-maximized)
+
 (provide 'init-basic)
