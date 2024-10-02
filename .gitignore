@@ -1,0 +1,8 @@
+backups/
+auto-save-list/
+elpa/
+transient/
+history
+.last-package-update-day
+
+
