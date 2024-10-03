@@ -15,23 +15,8 @@
    'org-babel-load-languages
    '((java . t)
      (C . t)))
-  :hook (org-mode . auto-fill-mode))
-
-
-;; Evil-org 用于定制 org-mode 中的 evil 键绑定
-(use-package evil-org
-  :ensure t
-  :after (evil org)
-  :hook (org-mode . evil-org-mode)
-  :config
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys)
-  (evil-define-key 'normal evil-org-mode-map
-    (kbd "t") 'org-todo
-    (kbd "H") 'org-metaleft
-    (kbd "L") 'org-metaright
-    (kbd "J") 'org-metadown
-    (kbd "K") 'org-metaup))
+  :hook ((org-mode . auto-fill-mode)
+	 (org-mode . (lambda () (company-mode -1)))))
 
 (use-package org-bullets
   :ensure t

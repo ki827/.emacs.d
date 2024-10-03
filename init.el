@@ -5,5 +5,5 @@
 (require 'init-theme)
 (require 'init-org)
 (require 'init-vertico)
-(require 'init-orderless)
+;; (require 'init-orderless)
 (require 'init-consult)

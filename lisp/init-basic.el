@@ -20,7 +20,7 @@
   (setq column-number-mode t)
   (setq inhibit-startup-screen t)
   ;; Font
-  (set-face-attribute 'default nil :font "Ubuntu Mono" :height 200)
+  (set-face-attribute 'default nil :font "Ubuntu Mono-20")
   ;; Custom file path
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   ;; MacOS key mapping

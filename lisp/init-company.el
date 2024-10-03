@@ -13,10 +13,4 @@
   :bind
   ("M-/" . company-complete))
 
-(use-package company-prescient
-  :ensure t
-  :config
-  (company-prescient-mode 1))
-
-
 (provide 'init-company)
