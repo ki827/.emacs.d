@@ -4,5 +4,6 @@ elpa/
 transient/
 history
 .last-package-update-day
+var/
 
 

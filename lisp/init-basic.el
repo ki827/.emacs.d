@@ -11,8 +11,11 @@
 (setq use-package-always-ensure t)  
 
 (use-package emacs
+  :init
+  (pixel-scroll-precision-mode t)
+  
   :config
-  ;; UI
+    ;; UI
   (tool-bar-mode -1)
   (menu-bar-mode -1)
   (scroll-bar-mode -1)
@@ -59,5 +62,10 @@
   (setq auto-package-update-delete-old-versions t
         auto-package-update-interval 7)
   (auto-package-update-maybe))
+
+(use-package unicode-fonts
+  :ensure t
+  :config
+  (unicode-fonts-setup))
 
 (provide 'init-basic)

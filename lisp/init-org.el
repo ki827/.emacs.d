@@ -1,7 +1,4 @@
-;; Org-mode 基本配置
 (use-package org
-  :ensure t
-
   :config
   (setq org-hide-leading-stars t
 	org-startup-indented t
@@ -16,7 +13,8 @@
    '((java . t)
      (C . t)))
   :hook ((org-mode . auto-fill-mode)
-	 (org-mode . (lambda () (company-mode -1)))))
+	 (org-mode . (lambda () (company-mode -1)))
+	 (org-mode . visual-line-mode)))
 
 (use-package org-bullets
   :ensure t
