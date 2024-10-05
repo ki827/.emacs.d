@@ -1,20 +1,20 @@
 (use-package org
   :config
   (setq org-hide-leading-stars t
-	org-startup-indented t
-	org-adapt-indentation t
 	org-log-done 'time
 	org-ellipsis " ▾"
 	org-directory "~/org"
 	org-agenda-files '("~/org/agenda.org")
+	org-startup-indented t
+	org-adapt-indentation t
 	fill-column 80)
+  ()
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((java . t)
      (C . t)))
-  :hook ((org-mode . auto-fill-mode)
-	 (org-mode . (lambda () (company-mode -1)))
-	 (org-mode . visual-line-mode)))
+  :hook ((org-mode . (lambda () (company-mode -1)))
+	 (org-mode . org-indent-mode)))
 
 (use-package org-bullets
   :ensure t
