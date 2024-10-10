@@ -63,9 +63,7 @@
         auto-package-update-interval 7)
   (auto-package-update-maybe))
 
-(use-package unicode-fonts
-  :ensure t
-  :config
-  (unicode-fonts-setup))
+(use-package all-the-icons
+  :if (display-graphic-p))
 
 (provide 'init-basic)
