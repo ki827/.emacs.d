@@ -7,6 +7,9 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+
 (require 'use-package)
 (setq use-package-always-ensure t)  
 
@@ -44,6 +47,10 @@
 	kept-old-versions 2
 	delete-old-versions t
 	backup-by-copying t)
+
+  ;; eldoc
+  (setq eldoc-echo-area-use-multiline-p 1
+	eldoc-current-idle-delay 1)
   :bind
   (("C-c e l" . (lambda () (interactive) (find-file (expand-file-name "lisp" user-emacs-directory)))))
    ("C-c e i" . (lambda () (interactive) (find-file (expand-file-name "init.el" user-emacs-directory)))))

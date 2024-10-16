@@ -8,4 +8,6 @@
 ;; (require 'init-orderless)
 (require 'init-consult)
 (require 'init-c)
+(require 'init-rust)
+(require 'init-eglot)
 

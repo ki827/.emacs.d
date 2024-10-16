@@ -6,5 +6,7 @@ history
 .last-package-update-day
 var/
 eln-cache/
+projects
+tree-sitter/
 
 

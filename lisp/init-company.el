@@ -1,7 +1,7 @@
 (use-package company
   :hook (after-init . global-company-mode)
   :config
-  (setq company-idle-delay 0.0           
+  (setq company-idle-delay 0.1
         company-minimum-prefix-length 1) 
   :bind
   (:map company-active-map
