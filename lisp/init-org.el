@@ -14,7 +14,7 @@
   :hook ((org-mode . (lambda () (company-mode -1)))
 	 (org-mode . org-indent-mode)
 	 (org-mode . auto-fill-mode)
-	 (org-mode . (lambda () (setq fill-column 70)))))
+	 (org-mode . (lambda () (setq fill-column 80)))))
 
 (use-package org-bullets
   :ensure t
