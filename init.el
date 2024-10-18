@@ -10,4 +10,4 @@
 (require 'init-c)
 (require 'init-rust)
 (require 'init-eglot)
-
+;;(require 'init-evil)
