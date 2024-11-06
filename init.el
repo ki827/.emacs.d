@@ -10,4 +10,5 @@
 (require 'init-c)
 (require 'init-rust)
 (require 'init-eglot)
+(require 'init-swift)
 ;;(require 'init-evil)

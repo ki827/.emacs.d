@@ -6,11 +6,13 @@
 	org-directory "~/org"
 	org-agenda-files '("~/org/agenda.org")
 	org-startup-indented t
-	org-adapt-indentation t)
+	org-adapt-indentation t
+	org-plantuml-jar-path (expand-file-name "~/plantuml.jar"))
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((java . t)
-     (C . t)))
+     (C . t)
+     (plantuml .t)))
   :hook ((org-mode . (lambda () (company-mode -1)))
 	 (org-mode . org-indent-mode)
 	 (org-mode . auto-fill-mode)
