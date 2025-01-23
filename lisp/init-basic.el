@@ -51,6 +51,10 @@
   ;; eldoc
   (setq eldoc-echo-area-use-multiline-p 1
 	eldoc-current-idle-delay 1)
+
+  ;; GC
+  (setq gc-cons-threshold 512000000)  ; 设置为100MB
+  (setq gc-cons-percentage 0.6)       ; 设置GC触发时机
   :bind
   (("C-c e l" . (lambda () (interactive) (find-file (expand-file-name "lisp" user-emacs-directory)))))
    ("C-c e i" . (lambda () (interactive) (find-file (expand-file-name "init.el" user-emacs-directory)))))
