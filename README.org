@@ -11,7 +11,7 @@
 打开本手册的快捷键： ~C-c m~ 。
 
 仓库地址： ~https://github.com/ki827/.emacs.d~ 。新机器克隆后第一次启动会自动从
-MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
+MELPA 装包，C / C++ / Go / Rust 的 tree-sitter grammar 也会自动编译，不需手动操作。
 
 * 修饰键映射（macOS · HHKB）
 
@@ -203,7 +203,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 | 跳出     | 调试 transient 里 ~o~        |
 | 继续     | 调试 transient 里 ~c~        |
 
-断点会自动持久化到 =~/.emacs.d/var/dape-breakpoints= 。
+断点会自动持久化到 =~/.emacs.d/dape-breakpoints= 。
 
 * 模板片段（Tempel）
 
@@ -267,13 +267,13 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 * Go
 
 - 文件类型： ~.go~ → ~go-ts-mode~, ~go.mod~ → ~go-mod-ts-mode~
-- LSP：gopls，启用 ~staticcheck~ + ~gofumpt~ + 全套 inlay hints
+- LSP：gopls，配置 ~staticcheck~ + ~gofumpt~ + 全套 inlay hints；如需显示 hints，执行 ~M-x eglot-inlay-hints-mode~
 - 保存时自动 goimports
 
 * Rust
 
 - ~.rs~ → ~rust-ts-mode~
-- LSP：rust-analyzer， ~cargo check~ 替换为 ~clippy~ ，启用 inlay hints
+- LSP：rust-analyzer， ~cargo check~ 替换为 ~clippy~ ，配置 inlay hints；如需显示 hints，执行 ~M-x eglot-inlay-hints-mode~
 - 保存时自动 ~rustfmt~
 - ~rust-ts-mode~ 自带的 ~rust-ts-flymake~ 后端已禁用，避免与 eglot 的 LSP 诊断
   竞态（过去会偶发 ~Can't find state for rust-ts-flymake in flymake--state~ ）。
@@ -282,9 +282,9 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 * 包管理（package.el）
 
 新装一个包（临时）:
-#+begin_src
+#+begin_example
 M-x package-install RET <pkg> RET
-#+end_src
+#+end_example
 
 把它写进配置（永久）：在合适的模块文件里加一段 ~use-package~ ，例如：
 #+begin_src elisp
@@ -300,8 +300,9 @@ M-x package-install RET <pkg> RET
 
 * Tree-sitter 语法
 
-C / C++ / Go / Rust 的 grammar 已预装。新增其它语言：
-1. 在 ~lisp/core-prog.el~ 的 ~treesit-language-source-alist~ 加一项；
+C / C++ / Go / Rust 的 grammar 会在启动后自动检查并安装。 ~gomod~ / ~cmake~ / ~toml~ /
+~json~ / ~yaml~ 的 grammar 源地址已登记，但不会自动安装；首次使用这些 ts-mode 前可以：
+1. 如果语言不在列表里，先在 ~lisp/core-prog.el~ 的 ~treesit-language-source-alist~ 加一项；
 2. ~M-x treesit-install-language-grammar~ 选语言。
 
 * 故障排查 / FAQ
@@ -427,11 +428,11 @@ TODO → DOING → WAIT → DONE / CANCELED
 
 ** 源代码块
 
-#+begin_src org
+#+begin_example
 #+begin_src elisp
 (message "hello")
 #+end_src
-#+end_src
+#+end_example
 
 | 操作                       | 键位      |
 |----------------------------+-----------|
