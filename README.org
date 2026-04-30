@@ -10,7 +10,7 @@
 
 打开本手册的快捷键： ~C-c m~ 。
 
-仓库地址：~https://github.com/ki827/.emacs.d~ 。新机器克隆后第一次启动会自动从
+仓库地址： ~https://github.com/ki827/.emacs.d~ 。新机器克隆后第一次启动会自动从
 MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
 
 * 修饰键映射(macOS · HHKB)
