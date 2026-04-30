@@ -6,27 +6,30 @@
 * 总览
 
 这是一份针对 ~~/.emacs.d/~ 当前配置的速查手册。底层是 Emacs 30 + 内置
-~package.el~ + ~use-package~,语言主攻 C / C++ / Go / Rust。
+~package.el~ + ~use-package~,语言主攻 C / C++ / Go / Rust,Org-mode 做笔记。
 
-打开本手册的快捷键:~C-c m~。
+打开本手册的快捷键: ~C-c m~ 。
+
+仓库地址:~https://github.com/ki827/.emacs.d~ 。新机器克隆后第一次启动会自动从
+MELPA 装包,tree-sitter grammar 也会自动编译,不需手动操作。
 
 * 修饰键映射(macOS · HHKB)
 
-| 物理键              | 在 Emacs 里  | 写作 |
-|--------------------+--------------+------|
-| ⌘ Cmd(左/右)      | Control      | C-   |
-| ⌥ Opt(左/右)      | Meta         | M-   |
-| Control(A 旁)      | Control      | C-   |
+| 物理键        | 在 Emacs 里 | 写作 |
+|---------------+-------------+------|
+| ⌘ Cmd(左/右)  | Control     | C-   |
+| ⌥ Opt(左/右)  | Meta        | M-   |
+| Control(A 旁) | Control     | C-   |
 
-阅读下面的快捷键时,凡 ~C-x~ 一律是 *Cmd-X*,~M-x~ 是 *Opt-X*。
+阅读下面的快捷键时,凡 ~C-x~ 一律是 *Cmd-X*, ~M-x~ 是 *Opt-X* 。
 
 * 启动与重载
 
-| 操作                           | 命令 / 键位                  |
-|--------------------------------+------------------------------|
-| 启动后看耗时                   | 状态栏会 echo "Emacs ready in ..." |
-| 重新加载某个模块               | ~M-x load-file~ → 选 .el     |
-| 完全重启                       | ~C-x C-c~ 退出后重开          |
+| 操作             | 命令 / 键位                        |
+|------------------+------------------------------------|
+| 启动后看耗时     | 状态栏会 echo "Emacs ready in ..." |
+| 重新加载某个模块 | ~M-x load-file~ → 选 .el           |
+| 完全重启         | ~C-x C-c~ 退出后重开               |
 
 首次启动时会从 MELPA 自动安装第三方包,需要联网,通常 1–2 分钟。
 
@@ -35,20 +38,24 @@
 #+begin_src text
 ~/.emacs.d/
 ├── early-init.el                  # GC、原生编译、UI 早期抑制
-├── init.el                        # 包系统 + 模块加载
-├── MANUAL.org                     # 本文件
+├── init.el                        # 包系统 + 模块加载 + 全局便利绑定
+├── README.org                     # 本文件,GitHub 渲染入口
+├── .gitignore                     # 排除 elpa / 状态文件
 ├── lisp/
-│   ├── core-ui.el                 # 主题、行号、字体
-│   ├── core-editor.el             # 备份、savehist、recentf 等
+│   ├── core-ui.el                 # 主题、行号、字体(cnfonts)
+│   ├── core-editor.el             # 备份、savehist、recentf、dired、修饰键
 │   ├── core-completion.el         # vertico / consult / corfu / cape ...
 │   ├── core-project.el            # project.el / magit / envrc
 │   ├── core-prog.el               # tree-sitter / eglot / apheleia / dape
 │   ├── lang-c.el                  # C / C++ 专用
 │   ├── lang-go.el                 # Go 专用
-│   └── lang-rust.el               # Rust 专用
-├── elpa/                          # 第三方包(自动管理)
-├── auto-save/                     # 自动保存(自动管理)
-└── backups/                       # 文件备份(自动管理)
+│   ├── lang-rust.el               # Rust 专用
+│   └── lang-org.el                # Org-mode + CJK 软换行
+├── elpa/                          # 第三方包(自动管理,git 忽略)
+├── eln-cache/ tree-sitter/        # 原生编译 + tree-sitter 缓存(忽略)
+├── cnfonts/                       # 字号 profile(忽略)
+├── auto-save/ backups/            # 编辑状态(忽略)
+└── custom.el                      # M-x customize 写入(忽略)
 #+end_src
 
 * 文件 / Buffer / 窗口
@@ -76,7 +83,7 @@
 注:Emacs 默认 ~set-mark-command~ 是 ~C-SPC~,但在 macOS 上 ~Ctrl-Space~ 通常被
 系统级输入法切换占用,Emacs 收不到该事件;因此本配置把 ~set-mark-command~ 重新
 绑定到 ~C-'~。用法:落点 → 移光标到选区终点 → 任意 ~M-w~ / ~C-w~ / 格式化命令
-作用于该选区;~C-g~ 取消选中。
+作用于该选区; ~C-g~ 取消选中。
 
 * Minibuffer 补全(Vertico + Consult + Embark)
 
@@ -146,8 +153,8 @@ candidate 框里多个词用空格分隔即可,顺序不限。例:
 | Magit 状态面板 | ~C-x g~   |
 | Magit 命令分发 | ~C-x M-g~ |
 
-进入 Magit 后:~s~ 暂存,~u~ 取消暂存,~c c~ 提交,~P p~ push,~F p~ pull,
-~l l~ 看历史,~b b~ 切分支,~?~ 弹出帮助。
+进入 Magit 后: ~s~ 暂存, ~u~ 取消暂存, ~c c~ 提交, ~P p~ push, ~F p~ pull,
+~l l~ 看历史, ~b b~ 切分支, ~?~ 弹出帮助。
 
 * LSP(Eglot)
 
@@ -196,7 +203,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 | 跳出     | 调试 transient 里 ~o~        |
 | 继续     | 调试 transient 里 ~c~        |
 
-断点会自动持久化到 ~~/.emacs.d/var/dape-breakpoints~。
+断点会自动持久化到  ~~/.emacs.d/var/dape-breakpoints~ 。
 
 * 模板片段(Tempel)
 
@@ -211,24 +218,49 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 
 * 行号 / 主题 / 字体
 
-| 操作            | 命令                                        |
-|-----------------+---------------------------------------------|
-| 切主题          | ~M-x load-theme~                            |
-| ef 主题快速切   | ~M-x ef-themes-select~ / ~ef-themes-toggle~ |
-| 临时关行号      | ~M-x display-line-numbers-mode~             |
-| 字号放大 / 缩小 | ~C-x C-+~ / ~C-x C--~ / 还原 ~C-x C-0~      |
-| 永久改字号      | 编辑 ~lisp/core-ui.el~,~:height~ = 1/10 pt  |
+** 行号
 
-当前主题:~ef-elea-light~。
-当前字号:18 pt(~:height 180~)。
+~prog-mode~ 与 ~org-mode~ 默认显示绝对行号。临时关:~M-x display-line-numbers-mode~ 。
+
+** 主题
+
+| 操作          | 命令                                        |
+|---------------+---------------------------------------------|
+| 切任意主题    | ~M-x load-theme~                            |
+| ef 主题快速切 | ~M-x ef-themes-select~ / ~ef-themes-toggle~ |
+
+当前主题: ~ef-elea-light~ 。
+
+** 字号(cnfonts 管理)
+
+字体大小由 ~cnfonts~ 接管——它为每个字号档位预先匹配好"ASCII : CJK = 1 : 2"的精确尺寸对,
+切档位时中英文表格自动保持视觉对齐。
+
+| 操作                  | 命令                                            |
+|-----------------------+-------------------------------------------------|
+| 升一档字号            | ~M-x cnfonts-increase-fontsize~                 |
+| 降一档字号            | ~M-x cnfonts-decrease-fontsize~                 |
+| 重置为默认字号        | ~M-x cnfonts-reset-fontsize~                    |
+| 编辑当前档位的尺寸表  | ~M-x cnfonts-edit-profile~                      |
+| 在档位间挑一个        | ~M-x cnfonts-set-font-with-saved-fontsize~      |
+
+当前默认字号:18 pt(在 ~lisp/core-ui.el~ 里 ~cnfonts-default-fontsize~ 设置)。
+所选档位会持久化到 ~~/.emacs.d/cnfonts/~,下次启动直接生效,不必每台机器再调一次。
+
+字体优先选择列表(在 ~core-ui.el~ 的 ~cnfonts-personal-fontnames~):
+- ASCII:JetBrains Mono → Fira Code → SF Mono → Menlo
+- CJK:Sarasa Mono SC → PingFang SC → Hiragino Sans GB → STHeiti
 
 * C / C++
 
 - ~.h~ 走 ~c-or-c++-ts-mode~(自动判 C/C++)
-- ~.c~ → ~c-ts-mode~,~.cpp~/~.cc~/~.cxx~/~.hpp~ → ~c++-ts-mode~
+- ~.c~ → ~c-ts-mode~, ~.cpp~/~.cc~/~.cxx~/~.hpp~ → ~c++-ts-mode~
 - 缩进 4 空格,Linux 风格
 - LSP:clangd,启用 ~--clang-tidy~ + 后台索引
 - CMake 文件用 ~cmake-ts-mode~
+- *电子缩进特例*: ~:~ 已从 ~electric-indent-chars~ 移除,避免输入 ~std:~ 时被
+  parser 当成 label 而瞬间跳到列 0(等输入第二个 ~:~ 才回正)。代价是 ~switch~
+  的 ~case ...:~ 和 ~goto~ label 不会自动 dedent——这两个用得少,需要时手动 ~TAB~ 即可。
 
 最佳实践:在项目根放一个 ~compile_commands.json~(CMake 用 ~-DCMAKE_EXPORT_COMPILE_COMMANDS=ON~ 生成,Bazel 用 ~bazel-compdb~,纯 Make 用 ~bear -- make~)。clangd 会自动找到。
 
@@ -241,8 +273,11 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 * Rust
 
 - ~.rs~ → ~rust-ts-mode~
-- LSP:rust-analyzer,~cargo check~ 替换为 ~clippy~,启用 inlay hints
+- LSP:rust-analyzer, ~cargo check~ 替换为 ~clippy~ ,启用 inlay hints
 - 保存时自动 ~rustfmt~
+- ~rust-ts-mode~ 自带的 ~rust-ts-flymake~ 后端已禁用,避免与 eglot 的 LSP 诊断
+  竞态(过去会偶发 ~Can't find state for rust-ts-flymake in flymake--state~ )。
+  所有诊断由 rust-analyzer 经 eglot 提供。
 
 * 包管理(package.el)
 
@@ -260,8 +295,8 @@ M-x package-install RET <pkg> RET
 #+end_src
 ~use-package-always-ensure~ 已开启,无需手动 ~:ensure t~。
 
-升级所有包:~M-x package-upgrade-all~。
-列出已装包:~M-x package-list-packages~。
+升级所有包: ~M-x package-upgrade-all~ 。
+列出已装包: ~M-x package-list-packages~ 。
 
 * Tree-sitter 语法
 
@@ -275,14 +310,14 @@ C / C++ / Go / Rust 的 grammar 已预装。新增其它语言:
 ~M-x package-refresh-contents~,然后重启。
 
 ** LSP 没起来
-- 确认对应工具在 ~PATH~ 中:终端跑 ~which clangd~ / ~which gopls~ / ~which rust-analyzer~。
+- 确认对应工具在 ~PATH~ 中:终端跑 ~which clangd~ / ~which gopls~ / ~which rust-analyzer~ 。
 - 在 Emacs 里 ~M-x getenv RET PATH RET~ 看是否一致。GUI Emacs 由 ~exec-path-from-shell~ 自动同步。
 - ~M-x eglot~ 手动启动并看 ~*EGLOT events*~ buffer。
 
 ** 哪些键已经被绑了
 - 按某个前缀停一会儿,which-key 自动列出后续可选(如按 ~C-x p~ 等 0.5 秒)。
-- 全局看:~M-x describe-keymap RET global-map RET~。
-- 在 minibuffer 里:~C-h B~ 列 Embark 视角的可用动作。
+- 全局看: ~M-x describe-keymap RET global-map RET~ 。
+- 在 minibuffer 里: ~C-h B~ 列 Embark 视角的可用动作。
 
 ** 想看某个键绑了什么
 ~C-h k~ 然后按那个键。
@@ -292,11 +327,32 @@ C / C++ / Go / Rust 的 grammar 已预装。新增其它语言:
 
 ** 修改没生效
 - 改了模块文件 → ~M-x load-file~ 重新加载该模块,或重启。
-- 改了主题 → ~M-x disable-theme~ 关旧的,~M-x load-theme~ 加新的。
+- 改了主题 → ~M-x disable-theme~ 关旧的, ~M-x load-theme~ 加新的。
 
 ** 想清掉一个错乱的状态
-- 单 buffer:~M-x revert-buffer~。
-- 全局:~M-x emacs-init-time~ 看是否健康;实在不行重启。
+- 单 buffer: ~M-x revert-buffer~ 。
+- 全局: ~M-x emacs-init-time~ 看是否健康;实在不行重启。
+
+** dired 提示 ~ls does not support --dired -N~
+
+macOS 自带 BSD ~ls~ 不支持 GNU 的 ~--dired~ 选项,我们已经做了自动适配:
+- 检测到 ~gls~(GNU coreutils)就用它,获得完整 dired 功能;
+- 没有就退化成普通 ~ls~,警告消失但 dired 略简陋。
+
+想要全功能版:
+
+#+begin_src sh
+brew install coreutils
+#+end_src
+
+下次启动 Emacs 自动切换。
+
+** 看到红/蓝波浪线但没有错误文字
+
+Flymake 用波浪线标错位置(红=error,蓝=info),错误内容默认只在以下场景显示:
+- 光标停在波浪线上 → echo area(屏幕底部)显示
+- ~M-n~ / ~M-p~ 跳到下/上一个错误 → 同时 echo
+- ~M-x flymake-show-buffer-diagnostics~ → 列出全部
 
 * 升级配置
 
@@ -314,7 +370,7 @@ emacs --batch -l ~/.emacs.d/init.el --eval '(message "OK")'
 - ~visual-line-mode~:软换行,不在文件里写死换行符
 - ~word-wrap-by-category t~:让软换行能在中文之间正确断行(中文无空格,默认会断行不准)
 - ~org-startup-indented~:标题层级缩进显示
-- ~org-pretty-entities~:~\alpha~ 显示成 α,~\to~ 显示成 →
+- ~org-pretty-entities~: ~\alpha~ 显示成 α, ~\to~ 显示成 →
 - 源码块原生语法高亮、TAB 缩进、保留缩进
 - TODO 流转 + 完成时间戳
 
@@ -367,7 +423,7 @@ TODO → DOING → WAIT → DONE / CANCELED
 | 加列 / 删列     | ~M-S-→~ / ~M-S-←~(整列) |
 | 计算公式        | ~C-c =~                 |
 
-*Org 表格 CJK 对齐*:Org 内置 ~org-table-align~ 按 ~string-width~ 计算,中文字符宽度=2、英文=1。要在屏幕上真的看到对齐,字体必须是*真正的 1:2 等宽 CJK 字体*——Sarasa Mono SC 是最佳选择(见下面"中文 / CJK 支持")。Hiragino Sans GB 这类系统字体不是 1:2 等宽,即便 Org 算得对,看着也不齐。
+*Org 表格 CJK 对齐*: Org 内置 ~org-table-align~ 按 ~string-width~ 计算,中文字符宽度=2、英文=1。要在屏幕上真的看到对齐,字体必须是 *真正的 1:2 等宽 CJK 字体* ——Sarasa Mono SC 是最佳选择(见下面"中文 / CJK 支持")。Hiragino Sans GB 这类系统字体不是 1:2 等宽,即便 Org 算得对,看着也不齐。
 
 ** 源代码块
 
@@ -389,28 +445,24 @@ src 块支持原生语法高亮、TAB 缩进、保留缩进。
 
 ** 字体
 
-当前 CJK 字体回退顺序(依次匹配第一个存在的):
+字体管理由 ~cnfonts~ 接管,见上面"行号 / 主题 / 字体"章节。它做两件事:
+1. 在 ASCII 优先列表里挑第一个可用的 ASCII 字体,在 CJK 优先列表里挑第一个可用的 CJK 字体;
+2. 按选定档位为这两个字体配一对精确尺寸,保证 1 个 CJK 字符 = 2 个 ASCII 字符的视觉宽度。
 
-1. Sarasa Mono SC
-2. LXGW WenKai Mono
-3. PingFang SC
-4. Hiragino Sans GB
-5. Heiti SC
-6. STHeiti
-
-你这台 Mac 上目前命中的是 *Hiragino Sans GB*(系统自带)。
-
-*想要更好的体验*——装 *Sarasa Mono SC*。Sarasa 是为中英 1:2 等宽专门设计的,写代码、对齐表格和缩进都最舒服:
+推荐字体: *Sarasa Mono SC* ——基于 Iosevka(英文)+ 思源黑体(中文),内部就是
+设计成 1:2 等宽。安装:
 
 #+begin_src sh
 brew install --cask font-sarasa-gothic
 #+end_src
 
-装完重启 Emacs 即可自动切到。或者只装 LXGW WenKai(更书法体的阅读字体):
+LXGW WenKai(书法体阅读字体)备选:
 
 #+begin_src sh
 brew install --cask font-lxgw-wenkai-mono
 #+end_src
+
+装完重启 Emacs,cnfonts 会自动选用。
 
 ** 中文换行
 
@@ -418,9 +470,12 @@ brew install --cask font-lxgw-wenkai-mono
 
 ** 中文输入
 
-不在 Emacs 内配置,使用 macOS 系统输入法即可(Cmd-Space 切换由系统接管)。注意我们把 Cmd 映射成 Control 了,所以系统快捷键的 ~Cmd-Space~ 在 Emacs 焦点下变成了 ~C-Space~——而 ~C-Space~ 是 Emacs 的 ~set-mark~。
+不在 Emacs 内配置,使用 macOS 系统输入法即可。注意我们把 Cmd 映射成 Control 了,
+所以默认 ~set-mark~ 的 ~C-SPC~ 与系统级 Ctrl-Space 输入法切换冲突——本配置已把
+~set-mark-command~ 改绑到 ~C-'~,见"文件 / Buffer / 窗口"章节。
 
-*推荐方案:* 输入法切换换成系统的 ~Caps Lock~ 切换(macOS 设置 → 键盘 → 输入法 → 用 Caps Lock 切换"ABC / 中文")。
+*建议:* macOS 设置 → 键盘 → 输入法 → 用 Caps Lock 切换"ABC / 中文",彻底
+跟 Ctrl-Space 解耦。
 
 ** Org 中文标点
 

@@ -40,9 +40,9 @@
 
 ;;; Open the configuration manual
 (defun my/open-manual ()
-  "Open MANUAL.org from the user's emacs config directory."
+  "Open README.org from the user's emacs config directory."
   (interactive)
-  (find-file (expand-file-name "MANUAL.org" user-emacs-directory)))
+  (find-file (expand-file-name "README.org" user-emacs-directory)))
 (global-set-key (kbd "C-c m") #'my/open-manual)
 
 ;;; Restore GC after startup
