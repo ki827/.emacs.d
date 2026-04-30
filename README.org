@@ -116,7 +116,7 @@ MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
 
 candidate 框里多个词用空格分隔即可，顺序不限。例：
 - ~M-x~ 后输入 ~rep buf~ 能匹配到 ~replace-regexp~ 也能匹配到 ~revert-buffer~ 。
-- 前缀 ~!~ 表示排除，~^~ 表示开头，~$~ 表示结尾。
+- 前缀 ~!~ 表示排除， ~^~ 表示开头， ~$~ 表示结尾。
 
 * Buffer 内补全(Corfu + Cape)
 
@@ -162,7 +162,7 @@ candidate 框里多个词用空格分隔即可，顺序不限。例：
 
 | 操作                | 键位                                      |
 |---------------------+-------------------------------------------|
-| 跳转到定义          | ~M-.~(经 Embark)/ ~xref-find-definitions~ |
+| 跳转到定义          | ~M-.~ (经 Embark)/ ~xref-find-definitions~ |
 | 返回                | ~M-,~                                     |
 | 查所有引用          | ~M-?~                                     |
 | 重命名              | ~C-c l r~                                 |
@@ -188,7 +188,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 - Go → ~goimports~
 - Rust → ~rustfmt~
 
-如不想全局格式化，某 buffer 临时关：~M-x apheleia-mode~ 。
+如不想全局格式化，某 buffer 临时关： ~M-x apheleia-mode~ 。
 
 * 调试(Dape)
 
@@ -220,7 +220,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 
 ** 行号
 
-~prog-mode~ 与 ~org-mode~ 默认显示绝对行号。临时关：~M-x display-line-numbers-mode~ 。
+~prog-mode~ 与 ~org-mode~ 默认显示绝对行号。临时关： ~M-x display-line-numbers-mode~ 。
 
 ** 主题
 
@@ -253,8 +253,8 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 
 * C / C++
 
-- ~.h~ 走 ~c-or-c++-ts-mode~(自动判 C/C++)
-- ~.c~ → ~c-ts-mode~, ~.cpp~/~.cc~/~.cxx~/~.hpp~ → ~c++-ts-mode~
+- ~.h~ 走 ~c-or-c++-ts-mode~ (自动判 C/C++)
+- ~.c~ → ~c-ts-mode~, ~.cpp~ / ~.cc~ / ~.cxx~ / ~.hpp~ → ~c++-ts-mode~
 - 缩进 4 空格，Linux 风格
 - LSP：clangd，启用 ~--clang-tidy~ + 后台索引
 - CMake 文件用 ~cmake-ts-mode~
@@ -262,18 +262,18 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
   parser 当成 label 而瞬间跳到列 0(等输入第二个 ~:~ 才回正)。代价是 ~switch~
   的 ~case ...:~ 和 ~goto~ label 不会自动 dedent——这两个用得少，需要时手动 ~TAB~ 即可。
 
-最佳实践：在项目根放一个 ~compile_commands.json~(CMake 用 ~-DCMAKE_EXPORT_COMPILE_COMMANDS=ON~ 生成，Bazel 用 ~bazel-compdb~ ，纯 Make 用 ~bear -- make~)。clangd 会自动找到。
+最佳实践：在项目根放一个 ~compile_commands.json~ (CMake 用 ~-DCMAKE_EXPORT_COMPILE_COMMANDS=ON~ 生成，Bazel 用 ~bazel-compdb~ ，纯 Make 用 ~bear -- make~)。clangd 会自动找到。
 
 * Go
 
-- 文件类型：~.go~ → ~go-ts-mode~,~go.mod~ → ~go-mod-ts-mode~
+- 文件类型： ~.go~ → ~go-ts-mode~, ~go.mod~ → ~go-mod-ts-mode~
 - LSP：gopls，启用 ~staticcheck~ + ~gofumpt~ + 全套 inlay hints
 - 保存时自动 goimports
 
 * Rust
 
 - ~.rs~ → ~rust-ts-mode~
-- LSP：rust-analyzer，~cargo check~ 替换为 ~clippy~ ，启用 inlay hints
+- LSP：rust-analyzer， ~cargo check~ 替换为 ~clippy~ ，启用 inlay hints
 - 保存时自动 ~rustfmt~
 - ~rust-ts-mode~ 自带的 ~rust-ts-flymake~ 后端已禁用，避免与 eglot 的 LSP 诊断
   竞态(过去会偶发 ~Can't find state for rust-ts-flymake in flymake--state~ )。
@@ -336,7 +336,7 @@ C / C++ / Go / Rust 的 grammar 已预装。新增其它语言：
 ** dired 提示 ~ls does not support --dired -N~
 
 macOS 自带 BSD ~ls~ 不支持 GNU 的 ~--dired~ 选项，我们已经做了自动适配：
-- 检测到 ~gls~(GNU coreutils)就用它，获得完整 dired 功能；
+- 检测到 ~gls~ (GNU coreutils)就用它，获得完整 dired 功能；
 - 没有就退化成普通 ~ls~ ，警告消失但 dired 略简陋。
 
 想要全功能版：
@@ -411,7 +411,7 @@ TODO → DOING → WAIT → DONE / CANCELED
 | 新条目        | ~M-RET~                |
 | 上 / 下移条目 | ~M-S-↑~ / ~M-S-↓~      |
 | 升 / 降级     | ~M-S-←~ / ~M-S-→~      |
-| 切换复选框    | ~C-c C-c~(在 ~[ ]~ 上) |
+| 切换复选框    | ~C-c C-c~ (在 ~[ ]~ 上) |
 
 ** 表格
 
@@ -419,11 +419,11 @@ TODO → DOING → WAIT → DONE / CANCELED
 |-----------------+-------------------------|
 | 下一格 / 上一格 | ~TAB~ / ~S-TAB~         |
 | 对齐            | ~C-c C-c~               |
-| 加行 / 删行     | ~M-S-↓~ / ~M-S-↑~(整行) |
-| 加列 / 删列     | ~M-S-→~ / ~M-S-←~(整列) |
+| 加行 / 删行     | ~M-S-↓~ / ~M-S-↑~ (整行) |
+| 加列 / 删列     | ~M-S-→~ / ~M-S-←~ (整列) |
 | 计算公式        | ~C-c =~                 |
 
-*Org 表格 CJK 对齐* ：Org 内置 ~org-table-align~ 按 ~string-width~ 计算，中文字符宽度=2、英文=1。要在屏幕上真的看到对齐，字体必须是 *真正的 1:2 等宽 CJK 字体* ——Sarasa Mono SC 是最佳选择(见下面"中文 / CJK 支持")。Hiragino Sans GB 这类系统字体不是 1:2 等宽，即便 Org 算得对，看着也不齐。
+*Org 表格 CJK 对齐* ：Org 内置 ~org-table-align~ 按 ~string-width~ 计算，中文字符宽度 =2、英文= 1。要在屏幕上真的看到对齐，字体必须是 *真正的 1:2 等宽 CJK 字体* ——Sarasa Mono SC 是最佳选择(见下面"中文 / CJK 支持")。Hiragino Sans GB 这类系统字体不是 1:2 等宽，即便 Org 算得对，看着也不齐。
 
 ** 源代码块
 
