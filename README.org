@@ -77,7 +77,7 @@ MELPA 装包，C / C++ / Go / Rust 的 tree-sitter grammar 也会自动编译，
 | 标记/选区起点       | ~C-'~                 |
 | 复制 / 剪切 / 粘贴  | ~M-w~ / ~C-w~ / ~C-y~ |
 
-注：~Cmd-C~ / ~Cmd-V~ 在 Emacs 里被映射成 ~C-c~ / ~C-v~ （因为 ~Cmd~ 已映射为 ~Control~ ），所以
+注： ~Cmd-C~ / ~Cmd-V~ 在 Emacs 里被映射成 ~C-c~ / ~C-v~ （因为 ~Cmd~ 已映射为 ~Control~ ），所以
 *macOS 风格的复制粘贴在 Emacs 内不可用* 。请用上表的键。
 
 注：Emacs 默认 ~set-mark-command~ 是 ~C-SPC~ ，但在 macOS 上 ~Ctrl-Space~ 通常被
@@ -130,7 +130,7 @@ candidate 框里多个词用空格分隔即可，顺序不限。例：
 | 取消               | ~C-g~ 或 ~ESC~        |
 | 显示候选的额外信息 | 自动（corfu-popupinfo） |
 
-按 ~TAB~ 在词尾位置直接触发补全（~tab-always-indent = complete~）。
+按 ~TAB~ 在词尾位置直接触发补全（ ~tab-always-indent = complete~ ）。
 
 * 项目（project.el — 内置）
 
@@ -183,7 +183,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 
 * 自动格式化（Apheleia）
 
-保存时异步格式化（*不阻塞*, *不破坏 undo*）:
+保存时异步格式化（ *不阻塞*, *不破坏 undo* ）:
 - C/C++ → ~clang-format~
 - Go → ~goimports~
 - Rust → ~rustfmt~
@@ -247,7 +247,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 当前默认字号：18 pt（在 ~lisp/core-ui.el~ 里 ~cnfonts-default-fontsize~ 设置）。
 所选档位会持久化到 =~/.emacs.d/cnfonts/= ，下次启动直接生效，不必每台机器再调一次。
 
-字体优先选择列表（在 ~core-ui.el~ 的 ~cnfonts-personal-fontnames~）:
+字体优先选择列表（在 ~core-ui.el~ 的 ~cnfonts-personal-fontnames~ ）:
 - ASCII:JetBrains Mono → Fira Code → SF Mono → Menlo
 - CJK:Sarasa Mono SC → PingFang SC → Hiragino Sans GB → STHeiti
 
@@ -262,7 +262,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
   parser 当成 label 而瞬间跳到列 0（等输入第二个 ~:~ 才回正）。代价是 ~switch~
   的 ~case ...:~ 和 ~goto~ label 不会自动 dedent——这两个用得少，需要时手动 ~TAB~ 即可。
 
-最佳实践：在项目根放一个 ~compile_commands.json~ （CMake 用 ~-DCMAKE_EXPORT_COMPILE_COMMANDS=ON~ 生成，Bazel 用 ~bazel-compdb~ ，纯 Make 用 ~bear -- make~）。clangd 会自动找到。
+最佳实践：在项目根放一个 ~compile_commands.json~ （CMake 用 ~-DCMAKE_EXPORT_COMPILE_COMMANDS=ON~ 生成，Bazel 用 ~bazel-compdb~ ，纯 Make 用 ~bear -- make~ ）。clangd 会自动找到。
 
 * Go
 
