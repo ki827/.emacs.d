@@ -21,7 +21,7 @@ MELPA 装包，C / C++ / Go / Rust 的 tree-sitter grammar 也会自动编译，
 | ~⌥ Opt(左/右)~    | ~Meta~      | ~M-~ |
 | ~Control(A 旁)~   | ~Control~   | ~C-~ |
 
-阅读下面的快捷键时，凡 ~C-x~ 一律是 *Cmd-X*, ~M-x~ 是 *Opt-X* 。
+阅读下面的快捷键时，凡 ~C-x~ 一律是 ~Cmd-X~ ， ~M-x~ 是 ~Opt-X~ 。
 
 * 启动与重载
 
@@ -77,7 +77,7 @@ MELPA 装包，C / C++ / Go / Rust 的 tree-sitter grammar 也会自动编译，
 | 标记/选区起点       | ~C-'~                 |
 | 复制 / 剪切 / 粘贴  | ~M-w~ / ~C-w~ / ~C-y~ |
 
-注：Cmd-C / Cmd-V 在 Emacs 里被映射成 C-c / C-v（因为 Cmd 已映射为 Control），所以
+注：~Cmd-C~ / ~Cmd-V~ 在 Emacs 里被映射成 ~C-c~ / ~C-v~ （因为 ~Cmd~ 已映射为 ~Control~ ），所以
 *macOS 风格的复制粘贴在 Emacs 内不可用* 。请用上表的键。
 
 注：Emacs 默认 ~set-mark-command~ 是 ~C-SPC~ ，但在 macOS 上 ~Ctrl-Space~ 通常被
@@ -476,7 +476,7 @@ brew install --cask font-lxgw-wenkai-mono
 ~set-mark-command~ 改绑到 ~C-'~ ，见"文件 / Buffer / 窗口"章节。
 
 *建议：* macOS 设置 → 键盘 → 输入法 → 用 Caps Lock 切换"ABC / 中文"，彻底
-跟 Ctrl-Space 解耦。
+跟 ~Ctrl-Space~ 解耦。
 
 ** Org 中文标点
 
