@@ -15,11 +15,11 @@ MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
 
 * 修饰键映射（macOS · HHKB）
 
-| 物理键        | 在 Emacs 里 | 写作 |
-|---------------+-------------+------|
-| ⌘ Cmd(左/右)  | Control     | C-   |
-| ⌥ Opt(左/右)  | Meta        | M-   |
-| Control(A 旁) | Control     | C-   |
+| 物理键            | 在 Emacs 里 | 写作 |
+|-------------------+-------------+------|
+| ~⌘ Cmd(左/右)~    | ~Control~   | ~C-~ |
+| ~⌥ Opt(左/右)~    | ~Meta~      | ~M-~ |
+| ~Control(A 旁)~   | ~Control~   | ~C-~ |
 
 阅读下面的快捷键时，凡 ~C-x~ 一律是 *Cmd-X*, ~M-x~ 是 *Opt-X* 。
 
