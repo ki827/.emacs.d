@@ -5,8 +5,8 @@
 
 * 总览
 
-这是一份针对 ~~/.emacs.d/~ 当前配置的速查手册。底层是 Emacs 30 + 内置
-~package.el~ + ~use-package~，语言主攻 C / C++ / Go / Rust，Org-mode 做笔记。
+这是一份针对 =~/.emacs.d/= 当前配置的速查手册。底层是 Emacs 30 + 内置
+~package.el~ + ~use-package~ ，语言主攻 C / C++ / Go / Rust，Org-mode 做笔记。
 
 打开本手册的快捷键： ~C-c m~ 。
 
@@ -80,9 +80,9 @@ MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
 注：Cmd-C / Cmd-V 在 Emacs 里被映射成 C-c / C-v(因为 Cmd 已映射为 Control)，所以
 *macOS 风格的复制粘贴在 Emacs 内不可用* 。请用上表的键。
 
-注：Emacs 默认 ~set-mark-command~ 是 ~C-SPC~，但在 macOS 上 ~Ctrl-Space~ 通常被
+注：Emacs 默认 ~set-mark-command~ 是 ~C-SPC~ ，但在 macOS 上 ~Ctrl-Space~ 通常被
 系统级输入法切换占用，Emacs 收不到该事件；因此本配置把 ~set-mark-command~ 重新
-绑定到 ~C-'~。用法：落点 → 移光标到选区终点 → 任意 ~M-w~ / ~C-w~ / 格式化命令
+绑定到 ~C-'~ 。用法：落点 → 移光标到选区终点 → 任意 ~M-w~ / ~C-w~ / 格式化命令
 作用于该选区； ~C-g~ 取消选中。
 
 * Minibuffer 补全(Vertico + Consult + Embark)
@@ -115,7 +115,7 @@ MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
 ** Orderless 输入语法
 
 candidate 框里多个词用空格分隔即可，顺序不限。例：
-- ~M-x~ 后输入 ~rep buf~ 能匹配到 ~replace-regexp~ 也能匹配到 ~revert-buffer~。
+- ~M-x~ 后输入 ~rep buf~ 能匹配到 ~replace-regexp~ 也能匹配到 ~revert-buffer~ 。
 - 前缀 ~!~ 表示排除，~^~ 表示开头，~$~ 表示结尾。
 
 * Buffer 内补全(Corfu + Cape)
@@ -183,12 +183,12 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 
 * 自动格式化(Apheleia)
 
-保存时异步格式化(*不阻塞*, *不破坏 undo*):
+保存时异步格式化(*不阻塞*, * 不破坏 undo*):
 - C/C++ → ~clang-format~
 - Go → ~goimports~
 - Rust → ~rustfmt~
 
-如不想全局格式化，某 buffer 临时关：~M-x apheleia-mode~。
+如不想全局格式化，某 buffer 临时关：~M-x apheleia-mode~ 。
 
 * 调试(Dape)
 
@@ -203,7 +203,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 | 跳出     | 调试 transient 里 ~o~        |
 | 继续     | 调试 transient 里 ~c~        |
 
-断点会自动持久化到 ~~/.emacs.d/var/dape-breakpoints~ 。
+断点会自动持久化到 =~/.emacs.d/var/dape-breakpoints= 。
 
 * 模板片段(Tempel)
 
@@ -213,8 +213,8 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 | 选一个已知模板插入     | ~M-*~         |
 | 模板内字段间跳转       | ~M-{~ / ~M-}~ |
 
-模板库来自 ~tempel-collection~，自带常见 prog-mode 片段。自定义模板写在
-~~/.emacs.d/templates~ 文件里。
+模板库来自 ~tempel-collection~ ，自带常见 prog-mode 片段。自定义模板写在
+=~/.emacs.d/templates= 文件里。
 
 * 行号 / 主题 / 字体
 
@@ -245,7 +245,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 | 在档位间挑一个        | ~M-x cnfonts-set-font-with-saved-fontsize~      |
 
 当前默认字号：18 pt(在 ~lisp/core-ui.el~ 里 ~cnfonts-default-fontsize~ 设置)。
-所选档位会持久化到 ~~/.emacs.d/cnfonts/~，下次启动直接生效，不必每台机器再调一次。
+所选档位会持久化到 =~/.emacs.d/cnfonts/= ，下次启动直接生效，不必每台机器再调一次。
 
 字体优先选择列表(在 ~core-ui.el~ 的 ~cnfonts-personal-fontnames~):
 - ASCII:JetBrains Mono → Fira Code → SF Mono → Menlo
@@ -262,7 +262,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
   parser 当成 label 而瞬间跳到列 0(等输入第二个 ~:~ 才回正)。代价是 ~switch~
   的 ~case ...:~ 和 ~goto~ label 不会自动 dedent——这两个用得少，需要时手动 ~TAB~ 即可。
 
-最佳实践：在项目根放一个 ~compile_commands.json~(CMake 用 ~-DCMAKE_EXPORT_COMPILE_COMMANDS=ON~ 生成，Bazel 用 ~bazel-compdb~，纯 Make 用 ~bear -- make~)。clangd 会自动找到。
+最佳实践：在项目根放一个 ~compile_commands.json~(CMake 用 ~-DCMAKE_EXPORT_COMPILE_COMMANDS=ON~ 生成，Bazel 用 ~bazel-compdb~ ，纯 Make 用 ~bear -- make~)。clangd 会自动找到。
 
 * Go
 
@@ -286,14 +286,14 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 M-x package-install RET <pkg> RET
 #+end_src
 
-把它写进配置(永久)：在合适的模块文件里加一段 ~use-package~，例如：
+把它写进配置(永久)：在合适的模块文件里加一段 ~use-package~ ，例如：
 #+begin_src elisp
 (use-package some-pkg
   :bind (("C-c x" . some-pkg-command))
   :init (setq some-pkg-foo t)
   :config (some-pkg-mode 1))
 #+end_src
-~use-package-always-ensure~ 已开启，无需手动 ~:ensure t~。
+~use-package-always-ensure~ 已开启，无需手动 ~:ensure t~ 。
 
 升级所有包： ~M-x package-upgrade-all~ 。
 列出已装包： ~M-x package-list-packages~ 。
@@ -307,7 +307,7 @@ C / C++ / Go / Rust 的 grammar 已预装。新增其它语言：
 * 故障排查 / FAQ
 
 ** 启动很慢 / 报包错
-~M-x package-refresh-contents~，然后重启。
+~M-x package-refresh-contents~ ，然后重启。
 
 ** LSP 没起来
 - 确认对应工具在 ~PATH~ 中：终端跑 ~which clangd~ / ~which gopls~ / ~which rust-analyzer~ 。
@@ -337,7 +337,7 @@ C / C++ / Go / Rust 的 grammar 已预装。新增其它语言：
 
 macOS 自带 BSD ~ls~ 不支持 GNU 的 ~--dired~ 选项，我们已经做了自动适配：
 - 检测到 ~gls~(GNU coreutils)就用它，获得完整 dired 功能；
-- 没有就退化成普通 ~ls~，警告消失但 dired 略简陋。
+- 没有就退化成普通 ~ls~ ，警告消失但 dired 略简陋。
 
 想要全功能版：
 
@@ -367,9 +367,9 @@ emacs --batch -l ~/.emacs.d/init.el --eval '(message "OK")'
 
 纯 Org 内置，不引入第三方包。
 
-- ~visual-line-mode~：软换行，不在文件里写死换行符
-- ~word-wrap-by-category t~：让软换行能在中文之间正确断行(中文无空格，默认会断行不准)
-- ~org-startup-indented~：标题层级缩进显示
+- ~visual-line-mode~ ：软换行，不在文件里写死换行符
+- ~word-wrap-by-category t~ ：让软换行能在中文之间正确断行(中文无空格，默认会断行不准)
+- ~org-startup-indented~ ：标题层级缩进显示
 - ~org-pretty-entities~: ~\alpha~ 显示成 α, ~\to~ 显示成 →
 - 源码块原生语法高亮、TAB 缩进、保留缩进
 - TODO 流转 + 完成时间戳
@@ -423,7 +423,7 @@ TODO → DOING → WAIT → DONE / CANCELED
 | 加列 / 删列     | ~M-S-→~ / ~M-S-←~(整列) |
 | 计算公式        | ~C-c =~                 |
 
-*Org 表格 CJK 对齐*：Org 内置 ~org-table-align~ 按 ~string-width~ 计算，中文字符宽度=2、英文=1。要在屏幕上真的看到对齐，字体必须是 *真正的 1:2 等宽 CJK 字体* ——Sarasa Mono SC 是最佳选择(见下面"中文 / CJK 支持")。Hiragino Sans GB 这类系统字体不是 1:2 等宽，即便 Org 算得对，看着也不齐。
+*Org 表格 CJK 对齐* ：Org 内置 ~org-table-align~ 按 ~string-width~ 计算，中文字符宽度=2、英文=1。要在屏幕上真的看到对齐，字体必须是 *真正的 1:2 等宽 CJK 字体* ——Sarasa Mono SC 是最佳选择(见下面"中文 / CJK 支持")。Hiragino Sans GB 这类系统字体不是 1:2 等宽，即便 Org 算得对，看着也不齐。
 
 ** 源代码块
 
@@ -472,7 +472,7 @@ brew install --cask font-lxgw-wenkai-mono
 
 不在 Emacs 内配置，使用 macOS 系统输入法即可。注意我们把 Cmd 映射成 Control 了，
 所以默认 ~set-mark~ 的 ~C-SPC~ 与系统级 Ctrl-Space 输入法切换冲突——本配置已把
-~set-mark-command~ 改绑到 ~C-'~，见"文件 / Buffer / 窗口"章节。
+~set-mark-command~ 改绑到 ~C-'~ ，见"文件 / Buffer / 窗口"章节。
 
 *建议：* macOS 设置 → 键盘 → 输入法 → 用 Caps Lock 切换"ABC / 中文"，彻底
 跟 Ctrl-Space 解耦。
