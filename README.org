@@ -13,7 +13,7 @@
 仓库地址： ~https://github.com/ki827/.emacs.d~ 。新机器克隆后第一次启动会自动从
 MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
 
-* 修饰键映射(macOS · HHKB)
+* 修饰键映射（macOS · HHKB）
 
 | 物理键        | 在 Emacs 里 | 写作 |
 |---------------+-------------+------|
@@ -77,7 +77,7 @@ MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
 | 标记/选区起点       | ~C-'~                 |
 | 复制 / 剪切 / 粘贴  | ~M-w~ / ~C-w~ / ~C-y~ |
 
-注：Cmd-C / Cmd-V 在 Emacs 里被映射成 C-c / C-v(因为 Cmd 已映射为 Control)，所以
+注：Cmd-C / Cmd-V 在 Emacs 里被映射成 C-c / C-v（因为 Cmd 已映射为 Control），所以
 *macOS 风格的复制粘贴在 Emacs 内不可用* 。请用上表的键。
 
 注：Emacs 默认 ~set-mark-command~ 是 ~C-SPC~ ，但在 macOS 上 ~Ctrl-Space~ 通常被
@@ -85,7 +85,7 @@ MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
 绑定到 ~C-'~ 。用法：落点 → 移光标到选区终点 → 任意 ~M-w~ / ~C-w~ / 格式化命令
 作用于该选区； ~C-g~ 取消选中。
 
-* Minibuffer 补全(Vertico + Consult + Embark)
+* Minibuffer 补全（Vertico + Consult + Embark）
 
 输入命令、查文件、跳行号——所有要从一堆候选里选一个的场景都走 minibuffer。
 
@@ -107,7 +107,7 @@ MELPA 装包，tree-sitter grammar 也会自动编译，不需手动操作。
 | 操作                                    | 键位    |
 |-----------------------------------------+---------|
 | 弹出"对当前候选可以做什么"操作菜单      | ~C-.~   |
-| 默认动作(对光标处的智能动作，如跳转定义) | ~M-.~   |
+| 默认动作（对光标处的智能动作，如跳转定义） | ~M-.~   |
 | 列出当前所有可用快捷键                  | ~C-h B~ |
 
 例：在 minibuffer 里搜文件时按 ~C-.~ → 选 "rename" / "delete" / "copy path" 等。
@@ -118,21 +118,21 @@ candidate 框里多个词用空格分隔即可，顺序不限。例：
 - ~M-x~ 后输入 ~rep buf~ 能匹配到 ~replace-regexp~ 也能匹配到 ~revert-buffer~ 。
 - 前缀 ~!~ 表示排除， ~^~ 表示开头， ~$~ 表示结尾。
 
-* Buffer 内补全(Corfu + Cape)
+* Buffer 内补全（Corfu + Cape）
 
 写代码时光标右边弹出的小窗。
 
 | 操作               | 键位                  |
 |--------------------+-----------------------|
-| 触发               | 自动(键入 2 字符)     |
+| 触发               | 自动（键入 2 字符）     |
 | 上下选             | ~C-n~ / ~C-p~         |
 | 选中并插入         | ~RET~ 或 ~TAB~        |
 | 取消               | ~C-g~ 或 ~ESC~        |
-| 显示候选的额外信息 | 自动(corfu-popupinfo) |
+| 显示候选的额外信息 | 自动（corfu-popupinfo） |
 
-按 ~TAB~ 在词尾位置直接触发补全(~tab-always-indent = complete~)。
+按 ~TAB~ 在词尾位置直接触发补全（~tab-always-indent = complete~）。
 
-* 项目(project.el — 内置)
+* 项目（project.el — 内置）
 
 任何含 ~.git~ 的目录自动识别为 project。
 
@@ -158,7 +158,7 @@ candidate 框里多个词用空格分隔即可，顺序不限。例：
 
 * LSP(Eglot)
 
-打开 C/C++/Go/Rust 文件时自动连接对应 LSP(clangd / gopls / rust-analyzer)。
+打开 C/C++/Go/Rust 文件时自动连接对应 LSP（clangd / gopls / rust-analyzer）。
 
 | 操作                | 键位                                      |
 |---------------------+-------------------------------------------|
@@ -166,12 +166,12 @@ candidate 框里多个词用空格分隔即可，顺序不限。例：
 | 返回                | ~M-,~                                     |
 | 查所有引用          | ~M-?~                                     |
 | 重命名              | ~C-c l r~                                 |
-| 代码动作(quick-fix) | ~C-c l a~                                 |
-| 格式化(整文件)      | ~C-c l f~                                 |
+| 代码动作（quick-fix） | ~C-c l a~                                 |
+| 格式化（整文件）      | ~C-c l f~                                 |
 | 文档悬浮            | ~C-c l h~ 或停留                          |
 | 重启 LSP            | ~M-x eglot-reconnect~                     |
 
-* 诊断(Flymake)
+* 诊断（Flymake）
 
 LSP 报的错/警告由 Flymake 显示在左 fringe。
 
@@ -181,18 +181,18 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 | 上一个错误     | ~M-p~                                 |
 | 看所有诊断列表 | ~M-x flymake-show-buffer-diagnostics~ |
 
-* 自动格式化(Apheleia)
+* 自动格式化（Apheleia）
 
-保存时异步格式化(*不阻塞*, * 不破坏 undo*):
+保存时异步格式化（*不阻塞*, *不破坏 undo*）:
 - C/C++ → ~clang-format~
 - Go → ~goimports~
 - Rust → ~rustfmt~
 
 如不想全局格式化，某 buffer 临时关： ~M-x apheleia-mode~ 。
 
-* 调试(Dape)
+* 调试（Dape）
 
-支持 lldb(C/C++/Rust)和 delve(Go)。
+支持 lldb（C/C++/Rust）和 delve（Go）。
 
 | 操作     | 命令                         |
 |----------+------------------------------|
@@ -205,7 +205,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 
 断点会自动持久化到 =~/.emacs.d/var/dape-breakpoints= 。
 
-* 模板片段(Tempel)
+* 模板片段（Tempel）
 
 | 操作                   | 键位          |
 |------------------------+---------------|
@@ -231,7 +231,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 
 当前主题： ~ef-elea-light~ 。
 
-** 字号(cnfonts 管理)
+** 字号（cnfonts 管理）
 
 字体大小由 ~cnfonts~ 接管——它为每个字号档位预先匹配好"ASCII : CJK = 1 : 2"的精确尺寸对，
 切档位时中英文表格自动保持视觉对齐。
@@ -244,10 +244,10 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 | 编辑当前档位的尺寸表  | ~M-x cnfonts-edit-profile~                      |
 | 在档位间挑一个        | ~M-x cnfonts-set-font-with-saved-fontsize~      |
 
-当前默认字号：18 pt(在 ~lisp/core-ui.el~ 里 ~cnfonts-default-fontsize~ 设置)。
+当前默认字号：18 pt（在 ~lisp/core-ui.el~ 里 ~cnfonts-default-fontsize~ 设置）。
 所选档位会持久化到 =~/.emacs.d/cnfonts/= ，下次启动直接生效，不必每台机器再调一次。
 
-字体优先选择列表(在 ~core-ui.el~ 的 ~cnfonts-personal-fontnames~):
+字体优先选择列表（在 ~core-ui.el~ 的 ~cnfonts-personal-fontnames~）:
 - ASCII:JetBrains Mono → Fira Code → SF Mono → Menlo
 - CJK:Sarasa Mono SC → PingFang SC → Hiragino Sans GB → STHeiti
 
@@ -259,10 +259,10 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 - LSP：clangd，启用 ~--clang-tidy~ + 后台索引
 - CMake 文件用 ~cmake-ts-mode~
 - *电子缩进特例*: ~:~ 已从 ~electric-indent-chars~ 移除，避免输入 ~std:~ 时被
-  parser 当成 label 而瞬间跳到列 0(等输入第二个 ~:~ 才回正)。代价是 ~switch~
+  parser 当成 label 而瞬间跳到列 0（等输入第二个 ~:~ 才回正）。代价是 ~switch~
   的 ~case ...:~ 和 ~goto~ label 不会自动 dedent——这两个用得少，需要时手动 ~TAB~ 即可。
 
-最佳实践：在项目根放一个 ~compile_commands.json~ (CMake 用 ~-DCMAKE_EXPORT_COMPILE_COMMANDS=ON~ 生成，Bazel 用 ~bazel-compdb~ ，纯 Make 用 ~bear -- make~)。clangd 会自动找到。
+最佳实践：在项目根放一个 ~compile_commands.json~ （CMake 用 ~-DCMAKE_EXPORT_COMPILE_COMMANDS=ON~ 生成，Bazel 用 ~bazel-compdb~ ，纯 Make 用 ~bear -- make~）。clangd 会自动找到。
 
 * Go
 
@@ -276,17 +276,17 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 - LSP：rust-analyzer， ~cargo check~ 替换为 ~clippy~ ，启用 inlay hints
 - 保存时自动 ~rustfmt~
 - ~rust-ts-mode~ 自带的 ~rust-ts-flymake~ 后端已禁用，避免与 eglot 的 LSP 诊断
-  竞态(过去会偶发 ~Can't find state for rust-ts-flymake in flymake--state~ )。
+  竞态（过去会偶发 ~Can't find state for rust-ts-flymake in flymake--state~ ）。
   所有诊断由 rust-analyzer 经 eglot 提供。
 
-* 包管理(package.el)
+* 包管理（package.el）
 
-新装一个包(临时):
+新装一个包（临时）:
 #+begin_src
 M-x package-install RET <pkg> RET
 #+end_src
 
-把它写进配置(永久)：在合适的模块文件里加一段 ~use-package~ ，例如：
+把它写进配置（永久）：在合适的模块文件里加一段 ~use-package~ ，例如：
 #+begin_src elisp
 (use-package some-pkg
   :bind (("C-c x" . some-pkg-command))
@@ -315,7 +315,7 @@ C / C++ / Go / Rust 的 grammar 已预装。新增其它语言：
 - ~M-x eglot~ 手动启动并看 ~*EGLOT events*~ buffer。
 
 ** 哪些键已经被绑了
-- 按某个前缀停一会儿，which-key 自动列出后续可选(如按 ~C-x p~ 等 0.5 秒)。
+- 按某个前缀停一会儿，which-key 自动列出后续可选（如按 ~C-x p~ 等 0.5 秒）。
 - 全局看： ~M-x describe-keymap RET global-map RET~ 。
 - 在 minibuffer 里： ~C-h B~ 列 Embark 视角的可用动作。
 
@@ -336,7 +336,7 @@ C / C++ / Go / Rust 的 grammar 已预装。新增其它语言：
 ** dired 提示 ~ls does not support --dired -N~
 
 macOS 自带 BSD ~ls~ 不支持 GNU 的 ~--dired~ 选项，我们已经做了自动适配：
-- 检测到 ~gls~ (GNU coreutils)就用它，获得完整 dired 功能；
+- 检测到 ~gls~ （GNU coreutils）就用它，获得完整 dired 功能；
 - 没有就退化成普通 ~ls~ ，警告消失但 dired 略简陋。
 
 想要全功能版：
@@ -349,8 +349,8 @@ brew install coreutils
 
 ** 看到红/蓝波浪线但没有错误文字
 
-Flymake 用波浪线标错位置(红=error，蓝=info)，错误内容默认只在以下场景显示：
-- 光标停在波浪线上 → echo area(屏幕底部)显示
+Flymake 用波浪线标错位置（红=error，蓝=info），错误内容默认只在以下场景显示：
+- 光标停在波浪线上 → echo area（屏幕底部）显示
 - ~M-n~ / ~M-p~ 跳到下/上一个错误 → 同时 echo
 - ~M-x flymake-show-buffer-diagnostics~ → 列出全部
 
@@ -368,7 +368,7 @@ emacs --batch -l ~/.emacs.d/init.el --eval '(message "OK")'
 纯 Org 内置，不引入第三方包。
 
 - ~visual-line-mode~ ：软换行，不在文件里写死换行符
-- ~word-wrap-by-category t~ ：让软换行能在中文之间正确断行(中文无空格，默认会断行不准)
+- ~word-wrap-by-category t~ ：让软换行能在中文之间正确断行（中文无空格，默认会断行不准）
 - ~org-startup-indented~ ：标题层级缩进显示
 - ~org-pretty-entities~: ~\alpha~ 显示成 α, ~\to~ 显示成 →
 - 源码块原生语法高亮、TAB 缩进、保留缩进
@@ -423,7 +423,7 @@ TODO → DOING → WAIT → DONE / CANCELED
 | 加列 / 删列     | ~M-S-→~ / ~M-S-←~ (整列) |
 | 计算公式        | ~C-c =~                 |
 
-*Org 表格 CJK 对齐* ：Org 内置 ~org-table-align~ 按 ~string-width~ 计算，中文字符宽度 =2、英文= 1。要在屏幕上真的看到对齐，字体必须是 *真正的 1:2 等宽 CJK 字体* ——Sarasa Mono SC 是最佳选择(见下面"中文 / CJK 支持")。Hiragino Sans GB 这类系统字体不是 1:2 等宽，即便 Org 算得对，看着也不齐。
+*Org 表格 CJK 对齐* ：Org 内置 ~org-table-align~ 按 ~string-width~ 计算，中文字符宽度 =2、英文= 1。要在屏幕上真的看到对齐，字体必须是 *真正的 1:2 等宽 CJK 字体* ——Sarasa Mono SC 是最佳选择（见下面"中文 / CJK 支持"）。Hiragino Sans GB 这类系统字体不是 1:2 等宽，即便 Org 算得对，看着也不齐。
 
 ** 源代码块
 
@@ -449,14 +449,14 @@ src 块支持原生语法高亮、TAB 缩进、保留缩进。
 1. 在 ASCII 优先列表里挑第一个可用的 ASCII 字体，在 CJK 优先列表里挑第一个可用的 CJK 字体；
 2. 按选定档位为这两个字体配一对精确尺寸，保证 1 个 CJK 字符 = 2 个 ASCII 字符的视觉宽度。
 
-推荐字体： *Sarasa Mono SC* ——基于 Iosevka(英文)+ 思源黑体(中文)，内部就是
+推荐字体： *Sarasa Mono SC* ——基于 Iosevka(英文)+ 思源黑体（中文），内部就是
 设计成 1:2 等宽。安装：
 
 #+begin_src sh
 brew install --cask font-sarasa-gothic
 #+end_src
 
-LXGW WenKai(书法体阅读字体)备选：
+LXGW WenKai（书法体阅读字体）备选：
 
 #+begin_src sh
 brew install --cask font-lxgw-wenkai-mono
@@ -466,7 +466,7 @@ brew install --cask font-lxgw-wenkai-mono
 
 ** 中文换行
 
-~visual-line-mode~ + ~word-wrap-by-category t~ 已开，中文段落软换行符合预期(不会切到中文字符正中间，标点也会留在行尾而不是换行后开头)。
+~visual-line-mode~ + ~word-wrap-by-category t~ 已开，中文段落软换行符合预期（不会切到中文字符正中间，标点也会留在行尾而不是换行后开头）。
 
 ** 中文输入
 
