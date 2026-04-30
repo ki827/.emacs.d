@@ -1,0 +1,27 @@
+# --- Reproducible / regenerated on next launch -------------------------
+elpa/
+eln-cache/
+tree-sitter/
+
+# --- Transient / per-machine state --------------------------------------
+auto-save/
+auto-save-list/
+backups/
+cnfonts/
+custom.el
+dape-breakpoints
+history
+places
+projects
+recentf
+url/
+network-security.data
+
+# --- macOS noise --------------------------------------------------------
+.DS_Store
+
+# --- Editor scratch -----------------------------------------------------
+*~
+\#*\#
+.\#*
+*.elc
