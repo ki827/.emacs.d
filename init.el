@@ -37,6 +37,7 @@
 (require 'lang-go)
 (require 'lang-rust)
 (require 'lang-org)
+(require 'lang-markdown)
 
 ;;; Open the configuration manual
 (defun my/open-manual ()

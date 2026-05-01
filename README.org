@@ -50,7 +50,8 @@ MELPA 装包，C / C++ / Go / Rust 的 tree-sitter grammar 也会自动编译，
 │   ├── lang-c.el                  # C / C++ 专用
 │   ├── lang-go.el                 # Go 专用
 │   ├── lang-rust.el               # Rust 专用
-│   └── lang-org.el                # Org-mode + CJK 软换行
+│   ├── lang-org.el                # Org-mode + CJK 软换行
+│   └── lang-markdown.el           # Markdown / GFM
 ├── elpa/                          # 第三方包(自动管理,git 忽略)
 ├── eln-cache/ tree-sitter/        # 原生编译 + tree-sitter 缓存(忽略)
 ├── cnfonts/                       # 字号 profile(忽略)
@@ -278,6 +279,37 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 - ~rust-ts-mode~ 自带的 ~rust-ts-flymake~ 后端已禁用，避免与 eglot 的 LSP 诊断
   竞态（过去会偶发 ~Can't find state for rust-ts-flymake in flymake--state~ ）。
   所有诊断由 rust-analyzer 经 eglot 提供。
+
+* Markdown
+
+- ~.md~ → ~gfm-mode~ （GitHub-Flavoured，支持任务列表、围栏代码块、自动链接等）
+- ~.markdown~ → ~markdown-mode~ （传统 CommonMark）
+- 围栏代码块按其声明的语言原生着色（ ~markdown-fontify-code-blocks-natively~ ）
+- 行号 + ~visual-line-mode~ 软换行（中文也能正确按字符断）
+- 数学公式语法默认开启 （ ~$x^2$~ ）
+- 保存时由 apheleia 调 ~prettier~ 自动格式化（如果系统里有 ~prettier~ ；没有就跳过）
+
+** 常用 Markdown 键位
+
+| 操作                  | 键位          |
+|-----------------------+---------------|
+| 折叠 / 展开标题       | ~TAB~         |
+| 全文折叠循环          | ~S-TAB~       |
+| 升 / 降级标题         | ~M-←~ / ~M-→~ |
+| 实时预览              | ~C-c C-c p~   |
+| 切换斜体 / 粗体 / 行内代码 | ~C-c C-s i~ / ~C-c C-s b~ / ~C-c C-s C~ |
+| 插入链接              | ~C-c C-l~     |
+| 插入表格              | ~C-c C-t t~   |
+
+** 想要预览(~C-c C-c p~)
+
+需要外部转换器。常用 pandoc:
+
+#+begin_src sh
+brew install pandoc
+#+end_src
+
+不装也不影响编辑。
 
 * 包管理（package.el）
 
