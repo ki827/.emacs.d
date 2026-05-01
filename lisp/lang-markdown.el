@@ -16,8 +16,12 @@
         markdown-list-indent-width             2
         markdown-italic-underscore             t))
 
-;; apheleia ships an alist entry for `markdown-mode' / `gfm-mode' that
-;; runs `prettier' on save when prettier is in PATH; nothing else needed.
+;; apheleia intentionally omits markdown-mode from its default
+;; `apheleia-mode-alist' (markdown styles vary too widely to ship a
+;; default). Wire it up explicitly so format-on-save uses prettier.
+(with-eval-after-load 'apheleia
+  (dolist (m '(markdown-mode gfm-mode))
+    (setf (alist-get m apheleia-mode-alist) 'prettier-markdown)))
 
 ;; Mermaid: standalone editing for .mmd files, plus syntax fontification
 ;; inside ```mermaid ... ``` fenced blocks (via markdown's native code-
