@@ -30,5 +30,16 @@
 ;; cannot break inside Chinese text because it has no whitespace.
 (setq-default word-wrap-by-category t)
 
+;; Mermaid in babel src blocks: render `#+begin_src mermaid :file foo.png ... #+end_src`
+;; to an image via the external `mmdc` CLI. Requires mermaid-cli on PATH.
+(use-package ob-mermaid
+  :after org
+  :init
+  (setq ob-mermaid-cli-path (or (executable-find "mmdc") "mmdc"))
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   (append org-babel-load-languages '((mermaid . t)))))
+
 (provide 'lang-org)
 ;;; lang-org.el ends here

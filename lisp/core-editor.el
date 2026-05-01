@@ -26,7 +26,12 @@
  scroll-margin 3
  scroll-conservatively 101
  use-short-answers t
- inhibit-startup-screen t)
+ inhibit-startup-screen t
+ resize-mini-windows nil)
+
+(with-eval-after-load 'minibuffer
+  (dolist (s '(".DS_Store"))
+    (add-to-list 'completion-ignored-extensions s)))
 
 ;; Alternate `set-mark' binding. The default C-SPC is commonly captured
 ;; by the OS-level input-method switcher on macOS, leaving Emacs unable
@@ -54,12 +59,18 @@
 ;; --dired option to suppress the noisy warning.
 (use-package dired
   :ensure nil
+  :hook (dired-mode . dired-omit-mode)
   :init
   (let ((gls (executable-find "gls")))
     (if gls
         (setq insert-directory-program gls
               dired-use-ls-dired       t)
-      (setq dired-use-ls-dired nil))))
+      (setq dired-use-ls-dired nil)))
+  :config
+  (require 'dired-x)
+  (setq dired-omit-files
+        (concat dired-omit-files "\\|\\`\\.DS_Store\\'"))
+  (setq dired-omit-verbose nil))
 
 (use-package autorevert
   :ensure nil
