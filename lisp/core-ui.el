@@ -9,7 +9,9 @@
   :hook ((prog-mode org-mode markdown-mode gfm-mode) . display-line-numbers-mode)
   :init
   (setq display-line-numbers-type t
-        display-line-numbers-width 3))
+        display-line-numbers-width 4
+        display-line-numbers-width-start t
+        display-line-numbers-grow-only t))
 
 (use-package hl-line
   :ensure nil
@@ -41,6 +43,9 @@
   :hook (after-init . cnfonts-mode)
   :init
   (setq cnfonts-default-fontsize 18
+        ;; Let the frame grow/shrink in pixels when cnfonts switches size,
+        ;; so the column/row count stays constant across profiles.
+        cnfonts-keep-frame-size nil
         cnfonts-personal-fontnames
         '(("JetBrains Mono" "Fira Code" "SF Mono" "Menlo")
           ("Sarasa Mono SC" "PingFang SC" "Hiragino Sans GB" "STHeiti")

@@ -3,7 +3,8 @@
 (use-package vertico
   :init
   (setq vertico-cycle t
-        vertico-resize t)
+        vertico-resize nil
+        vertico-count 10)
   :config
   (vertico-mode 1))
 
