@@ -14,7 +14,10 @@
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns x))
   :init
-  (setq exec-path-from-shell-arguments nil
+  ;; Use a login + interactive shell so .zprofile AND .zshrc are both
+  ;; sourced — most user PATH additions on macOS live in .zshrc, which
+  ;; is never sourced under the (faster) non-interactive default.
+  (setq exec-path-from-shell-arguments '("-l" "-i")
         exec-path-from-shell-variables
         '("PATH" "MANPATH" "GOPATH" "GOROOT"
           "CARGO_HOME" "RUSTUP_HOME"))
