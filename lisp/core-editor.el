@@ -27,10 +27,21 @@
  scroll-conservatively 101
  use-short-answers t
  inhibit-startup-screen t
- resize-mini-windows nil)
+ ;; CJK glyphs are double-width, so a hard 1-line cap on the echo area
+ ;; truncates Chinese messages mid-sentence. `grow-only' lets long
+ ;; messages expand vertically; the area collapses back to 1 line once
+ ;; the message clears, so there's no persistent drift while editing.
+ resize-mini-windows 'grow-only
+ max-mini-window-height 0.25
+ message-truncate-lines nil)
 
+;; `completion-ignored-extensions' is matched as a suffix list — entries
+;; are hidden from minibuffer file completion (find-file etc.) when other
+;; candidates exist. Directory candidates carry a trailing `/' in the
+;; string being matched, so directory entries here MUST end in `/'.
+;; (Emacs's own defaults follow the same rule: .git/, .svn/, CVS/, ...)
 (with-eval-after-load 'minibuffer
-  (dolist (s '(".DS_Store"))
+  (dolist (s '(".DS_Store" ".git/" ".github/" ".idea/" ".vscode/"))
     (add-to-list 'completion-ignored-extensions s)))
 
 ;; Alternate `set-mark' binding. The default C-SPC is commonly captured
@@ -68,8 +79,17 @@
       (setq dired-use-ls-dired nil)))
   :config
   (require 'dired-x)
+  ;; Append exact-name matches for noise: macOS metadata, VCS dirs, IDE
+  ;; droppings. The base `dired-omit-files' already hides `.' / `..'.
   (setq dired-omit-files
-        (concat dired-omit-files "\\|\\`\\.DS_Store\\'"))
+        (concat dired-omit-files
+                "\\|\\`\\(?:"
+                "\\.DS_Store"
+                "\\|\\.git"
+                "\\|\\.github"
+                "\\|\\.idea"
+                "\\|\\.vscode"
+                "\\)\\'"))
   (setq dired-omit-verbose nil))
 
 (use-package autorevert
