@@ -256,7 +256,7 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 
 - ~.h~ 走 ~c-or-c++-ts-mode~ (自动判 C/C++)
 - ~.c~ → ~c-ts-mode~, ~.cpp~ / ~.cc~ / ~.cxx~ / ~.hpp~ → ~c++-ts-mode~
-- 缩进 4 空格，Linux 风格
+- 缩进 2 空格， ~k&r~ 风格；保存时 ~clang-format~ 接管，无项目 ~.clang-format~ 时回退到 Google 风格
 - LSP：clangd，启用 ~--clang-tidy~ + 后台索引
 - CMake 文件用 ~cmake-ts-mode~
 - *电子缩进特例*: ~:~ 已从 ~electric-indent-chars~ 移除，避免输入 ~std:~ 时被

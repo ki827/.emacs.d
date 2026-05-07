@@ -23,9 +23,11 @@
         (yaml  "https://github.com/ikatyang/tree-sitter-yaml")))
 
 (defun my/treesit-install-active-grammars ()
-  "Install tree-sitter grammars for the four primary languages if missing."
+  "Install tree-sitter grammars used out-of-the-box if missing.
+`gomod' is included because `go-mod-ts-mode' is on `auto-mode-alist'
+for go.mod files; without the grammar, opening one errors out."
   (interactive)
-  (dolist (lang '(c cpp go rust))
+  (dolist (lang '(c cpp go gomod rust))
     (unless (treesit-language-available-p lang)
       (message "Installing tree-sitter grammar: %s" lang)
       (treesit-install-language-grammar lang))))
@@ -36,10 +38,11 @@
 
 (use-package eglot
   :ensure nil
-  :hook ((c-ts-mode      . eglot-ensure)
-         (c++-ts-mode    . eglot-ensure)
-         (go-ts-mode     . eglot-ensure)
-         (rust-ts-mode   . eglot-ensure))
+  :hook ((c-ts-mode         . eglot-ensure)
+         (c++-ts-mode       . eglot-ensure)
+         (c-or-c++-ts-mode  . eglot-ensure)
+         (go-ts-mode        . eglot-ensure)
+         (rust-ts-mode      . eglot-ensure))
   :bind (:map eglot-mode-map
               ("C-c l a" . eglot-code-actions)
               ("C-c l r" . eglot-rename)
