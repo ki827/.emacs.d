@@ -44,6 +44,15 @@
   (dolist (s '(".DS_Store" ".git/" ".github/" ".idea/" ".vscode/"))
     (add-to-list 'completion-ignored-extensions s)))
 
+;; In c-ts-mode (and some other tree-sitter modes), the default
+;; `electric-newline-and-maybe-indent' bound to RET inserts the
+;; newline but skips indenting when the new line is still empty —
+;; the indent only kicks in once you start typing. Bind RET in
+;; `prog-mode-map' to `newline-and-indent' so the cursor lands at
+;; the correct column immediately, in every prog-mode descendant.
+(with-eval-after-load 'prog-mode
+  (define-key prog-mode-map (kbd "RET") #'newline-and-indent))
+
 ;; Alternate `set-mark' binding. The default C-SPC is commonly captured
 ;; by the OS-level input-method switcher on macOS, leaving Emacs unable
 ;; to start a region selection.  C-' is free in default Emacs and easy

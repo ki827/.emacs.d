@@ -3,8 +3,25 @@
 (use-package c-ts-mode
   :ensure nil
   :init
-  (setq c-ts-mode-indent-offset 4
-        c-ts-mode-indent-style 'linux))
+  ;; Google C++ style: 2-space indent, K&R-ish brace placement.
+  ;; Keeping typing-time indent aligned with what clang-format
+  ;; (configured below) will produce on save avoids the ugly flicker
+  ;; of code reformatting itself the first time the buffer is saved.
+  (setq c-ts-mode-indent-offset 2
+        c-ts-mode-indent-style 'k&r))
+
+;; Tell apheleia's clang-format to fall back to Google style when no
+;; project `.clang-format' is found anywhere up the directory tree.
+;; `-fallback-style' (vs `-style') means a project's own .clang-format
+;; still wins — we only force Google when the project hasn't picked.
+(with-eval-after-load 'apheleia
+  (setf (alist-get 'clang-format apheleia-formatters)
+        '("clang-format"
+          "-fallback-style=Google"
+          "-assume-filename"
+          (or (apheleia-formatters-local-buffer-file-name)
+              (apheleia-formatters-mode-extension)
+              ".c"))))
 
 ;; Stop electric-indent from dedenting a half-typed line at the first
 ;; ':'. Without this, typing 'std:' makes the parser see a label and
