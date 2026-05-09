@@ -6,7 +6,7 @@
 
 (use-package display-line-numbers
   :ensure nil
-  :hook ((prog-mode org-mode markdown-mode gfm-mode) . display-line-numbers-mode)
+  :hook ((prog-mode org-mode markdown-mode) . display-line-numbers-mode)
   :init
   (setq display-line-numbers-type t
         display-line-numbers-width 4

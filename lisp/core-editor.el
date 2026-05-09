@@ -8,7 +8,7 @@
  require-final-newline t
  sentence-end-double-space nil)
 
-(let ((backups-dir   (expand-file-name "backups"   user-emacs-directory))
+(let ((backups-dir   (expand-file-name "backups/"   user-emacs-directory))
       (auto-save-dir (expand-file-name "auto-save/" user-emacs-directory)))
   (dolist (d (list backups-dir auto-save-dir))
     (unless (file-directory-p d) (make-directory d t)))
@@ -125,9 +125,12 @@
 (use-package recentf
   :ensure nil
   :init
+  ;; Patterns are regexps; anchor `\.cache' and `elpa' so they don't
+  ;; match unrelated paths that happen to contain those substrings.
   (setq recentf-max-saved-items 200
         recentf-max-menu-items 25
-        recentf-exclude '("/tmp/" "/ssh:" "/var/folders/" ".cache" "elpa"))
+        recentf-exclude '("/tmp/" "/ssh:" "/var/folders/"
+                          "/\\.cache/" "/elpa/"))
   :config
   (recentf-mode 1))
 

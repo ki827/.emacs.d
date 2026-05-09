@@ -13,7 +13,9 @@
 ;; usually done automatically before init.el runs, but `emacs --batch'
 ;; skips it, and calling it twice is harmless.
 (package-initialize)
-(unless package-archive-contents
+;; Skip the network refresh under `emacs --batch'; in interactive
+;; sessions a missing archive cache happens at most on first run.
+(when (and (not package-archive-contents) (not noninteractive))
   (package-refresh-contents))
 
 ;;; use-package (built-in since Emacs 29)
