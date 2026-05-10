@@ -42,7 +42,7 @@ MELPA 装包，C / C++ / Go / Rust 的 tree-sitter grammar 也会自动编译，
 ├── README.org                     # 本文件,GitHub 渲染入口
 ├── .gitignore                     # 排除 elpa / 状态文件
 ├── lisp/
-│   ├── core-ui.el                 # 主题、行号、字体(cnfonts)
+│   ├── core-ui.el                 # 主题、行号、字体
 │   ├── core-editor.el             # 备份、savehist、recentf、dired、修饰键
 │   ├── core-completion.el         # vertico / consult / corfu / cape ...
 │   ├── core-project.el            # project.el / magit / envrc
@@ -54,7 +54,6 @@ MELPA 装包，C / C++ / Go / Rust 的 tree-sitter grammar 也会自动编译，
 │   └── lang-markdown.el           # Markdown / GFM
 ├── elpa/                          # 第三方包(自动管理,git 忽略)
 ├── eln-cache/ tree-sitter/        # 原生编译 + tree-sitter 缓存(忽略)
-├── cnfonts/                       # 字号 profile(忽略)
 ├── auto-save/ backups/            # 编辑状态(忽略)
 └── custom.el                      # M-x customize 写入(忽略)
 #+end_src
@@ -232,25 +231,20 @@ LSP 报的错/警告由 Flymake 显示在左 fringe。
 
 当前主题： ~ef-elea-light~ 。
 
-** 字号（cnfonts 管理）
+** 字体 / 字号
 
-字体大小由 ~cnfonts~ 接管——它为每个字号档位预先匹配好"ASCII : CJK = 1 : 2"的精确尺寸对，
-切档位时中英文表格自动保持视觉对齐。
+直接用 macOS 自带的 *Monaco* ，CJK 走系统默认回退（PingFang SC 等），
+不显式接 fontset。
 
-| 操作                  | 命令                                            |
-|-----------------------+-------------------------------------------------|
-| 升一档字号            | ~M-x cnfonts-increase-fontsize~                 |
-| 降一档字号            | ~M-x cnfonts-decrease-fontsize~                 |
-| 重置为默认字号        | ~M-x cnfonts-reset-fontsize~                    |
-| 编辑当前档位的尺寸表  | ~M-x cnfonts-edit-profile~                      |
-| 在档位间挑一个        | ~M-x cnfonts-set-font-with-saved-fontsize~      |
+#+begin_src elisp
+(set-face-attribute 'default nil :family "Monaco" :height 180)
+#+end_src
 
-当前默认字号：18 pt（在 ~lisp/core-ui.el~ 里 ~cnfonts-default-fontsize~ 设置）。
-所选档位会持久化到 =~/.emacs.d/cnfonts/= ，下次启动直接生效，不必每台机器再调一次。
+~:height~ 单位是 1/10 pt，180 = 18pt。改这一行就是改全局字号。临时缩放用
+~C-x C-+~ / ~C-x C--~ （ ~text-scale-adjust~ ）。
 
-字体优先选择列表（在 ~core-ui.el~ 的 ~cnfonts-personal-fontnames~ ）:
-- ASCII:JetBrains Mono → Fira Code → SF Mono → Menlo
-- CJK:Sarasa Mono SC → PingFang SC → Hiragino Sans GB → STHeiti
+*待办* ：PingFang SC 不是与 Monaco 1:2 等宽的 CJK 字体，所以 Org / Markdown
+表格中英混排不会自动对齐。后续再单独研究方案。
 
 * C / C++
 
@@ -456,7 +450,7 @@ TODO → DOING → WAIT → DONE / CANCELED
 | 加列 / 删列     | ~M-S-→~ / ~M-S-←~ (整列) |
 | 计算公式        | ~C-c =~                 |
 
-*Org 表格 CJK 对齐* ：Org 内置 ~org-table-align~ 按 ~string-width~ 计算，中文字符宽度 =2、英文= 1。要在屏幕上真的看到对齐，字体必须是 *真正的 1:2 等宽 CJK 字体* ——Sarasa Mono SC 是最佳选择（见下面"中文 / CJK 支持"）。Hiragino Sans GB 这类系统字体不是 1:2 等宽，即便 Org 算得对，看着也不齐。
+*Org 表格 CJK 对齐* ：Org 内置 ~org-table-align~ 按 ~string-width~ 计算，中文字符宽度 =2、英文= 1。要在屏幕上真的看到对齐，字体必须是 *真正的 1:2 等宽 CJK 字体* 。当前用 Monaco + 系统 PingFang 不满足这一点，混排表格不会对齐——后续再研究方案。
 
 ** 源代码块
 
@@ -478,24 +472,11 @@ src 块支持原生语法高亮、TAB 缩进、保留缩进。
 
 ** 字体
 
-字体管理由 ~cnfonts~ 接管，见上面"行号 / 主题 / 字体"章节。它做两件事：
-1. 在 ASCII 优先列表里挑第一个可用的 ASCII 字体，在 CJK 优先列表里挑第一个可用的 CJK 字体；
-2. 按选定档位为这两个字体配一对精确尺寸，保证 1 个 CJK 字符 = 2 个 ASCII 字符的视觉宽度。
+走 macOS 默认：Latin 用系统 Monaco，CJK 由系统字体回退接管（macOS
+内置已经装了 PingFang SC / Hiragino Sans GB / STHeiti 等，按 fontset
+顺序自动挑）。无需额外安装。
 
-推荐字体： *Sarasa Mono SC* ——基于 Iosevka(英文)+ 思源黑体（中文），内部就是
-设计成 1:2 等宽。安装：
-
-#+begin_src sh
-brew install --cask font-sarasa-gothic
-#+end_src
-
-LXGW WenKai（书法体阅读字体）备选：
-
-#+begin_src sh
-brew install --cask font-lxgw-wenkai-mono
-#+end_src
-
-装完重启 Emacs，cnfonts 会自动选用。
+具体见上面"字体 / 字号"章节。
 
 ** 中文换行
 

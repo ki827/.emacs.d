@@ -55,9 +55,9 @@
 
 ;; Alternate `set-mark' binding. The default C-SPC is commonly captured
 ;; by the OS-level input-method switcher on macOS, leaving Emacs unable
-;; to start a region selection.  C-' is free in default Emacs and easy
+;; to start a region selection.  C-; is free in default Emacs and easy
 ;; to reach on HHKB.
-(global-set-key (kbd "C-'") #'set-mark-command)
+(global-set-key (kbd "C-;") #'set-mark-command)
 
 ;; macOS modifier mapping for HHKB layout: Cmd -> Control, Opt -> Meta.
 ;; Both left and right variants are set so external keyboards behave the
