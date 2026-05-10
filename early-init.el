@@ -6,10 +6,6 @@
 
 (setq inhibit-default-init t)
 
-;; Allow the frame to grow/shrink in pixels when the font (or font size)
-;; changes — required for cnfonts size switches to keep column/row count.
-(setq frame-inhibit-implied-resize nil)
-
 ;; Suppress chrome before the first frame paints to avoid flash.
 (push '(menu-bar-lines . 0)   default-frame-alist)
 (push '(tool-bar-lines . 0)   default-frame-alist)

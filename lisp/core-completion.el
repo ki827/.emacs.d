@@ -67,8 +67,15 @@
 
 (use-package cape
   :init
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+  ;; Attach as buffer-local fallbacks (after LSP and tempel which
+  ;; prepend themselves) instead of polluting the global capf list,
+  ;; which would otherwise reach into eshell, minibuffer, etc.
+  (defun my/cape-setup-capf ()
+    (setq-local completion-at-point-functions
+                (append completion-at-point-functions
+                        (list #'cape-dabbrev #'cape-file))))
+  (add-hook 'prog-mode-hook #'my/cape-setup-capf)
+  (add-hook 'text-mode-hook #'my/cape-setup-capf))
 
 (provide 'core-completion)
 ;;; core-completion.el ends here

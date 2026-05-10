@@ -17,17 +17,15 @@
         (go    "https://github.com/tree-sitter/tree-sitter-go")
         (gomod "https://github.com/camdencheek/tree-sitter-go-mod")
         (rust  "https://github.com/tree-sitter/tree-sitter-rust")
-        (cmake "https://github.com/uyha/tree-sitter-cmake")
-        (toml  "https://github.com/tree-sitter/tree-sitter-toml")
-        (json  "https://github.com/tree-sitter/tree-sitter-json")
-        (yaml  "https://github.com/ikatyang/tree-sitter-yaml")))
+        (cmake "https://github.com/uyha/tree-sitter-cmake")))
 
 (defun my/treesit-install-active-grammars ()
   "Install tree-sitter grammars used out-of-the-box if missing.
 `gomod' is included because `go-mod-ts-mode' is on `auto-mode-alist'
-for go.mod files; without the grammar, opening one errors out."
+for go.mod files; without the grammar, opening one errors out.
+`cmake' is included for `cmake-ts-mode' (CMakeLists.txt / .cmake)."
   (interactive)
-  (dolist (lang '(c cpp go gomod rust))
+  (dolist (lang '(c cpp go gomod rust cmake))
     (unless (treesit-language-available-p lang)
       (message "Installing tree-sitter grammar: %s" lang)
       (treesit-install-language-grammar lang))))
@@ -49,8 +47,11 @@ for go.mod files; without the grammar, opening one errors out."
               ("C-c l f" . eglot-format)
               ("C-c l h" . eldoc))
   :init
+  ;; Emacs 30's Eglot replaced `eglot-events-buffer-size' with
+  ;; `eglot-events-buffer-config'; the old name is no longer bound,
+  ;; so setting it had no effect on the events buffer.
   (setq eglot-autoshutdown t
-        eglot-events-buffer-size 0
+        eglot-events-buffer-config '(:size 0 :format full)
         eglot-extend-to-xref t
         eglot-sync-connect 1))
 
@@ -63,8 +64,7 @@ for go.mod files; without the grammar, opening one errors out."
 ;;; ---- Format on save (async) ---------------------------------------------
 
 (use-package apheleia
-  :config
-  (apheleia-global-mode 1))
+  :hook (after-init . apheleia-global-mode))
 
 ;;; ---- Snippets ------------------------------------------------------------
 
@@ -84,11 +84,17 @@ for go.mod files; without the grammar, opening one errors out."
 ;;; ---- Debugger -----------------------------------------------------------
 
 (use-package dape
+  ;; Defer loading until `M-x dape' (or any other dape entry point)
+  ;; is called; only `dape' itself is autoloaded by the package, so
+  ;; breakpoint persistence is wired up in `:config' — it runs after
+  ;; the first `dape' invocation, which is also the only point where
+  ;; new breakpoints could exist to save.
+  :commands (dape)
   :init
   (setq dape-buffer-window-arrangement 'right)
   :config
-  (add-hook 'kill-emacs-hook #'dape-breakpoint-save)
-  (add-hook 'after-init-hook #'dape-breakpoint-load))
+  (dape-breakpoint-load)
+  (add-hook 'kill-emacs-hook #'dape-breakpoint-save))
 
 ;;; ---- Discoverability ----------------------------------------------------
 

@@ -10,6 +10,7 @@ backups/
 cnfonts/
 custom.el
 dape-breakpoints
+exec-path-cache.el
 history
 places
 projects

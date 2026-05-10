@@ -6,7 +6,7 @@
 
 (use-package display-line-numbers
   :ensure nil
-  :hook ((prog-mode org-mode markdown-mode gfm-mode) . display-line-numbers-mode)
+  :hook ((prog-mode org-mode markdown-mode) . display-line-numbers-mode)
   :init
   (setq display-line-numbers-type t
         display-line-numbers-width 4
@@ -31,26 +31,12 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-;; Font management via cnfonts — the canonical solution for Chinese
-;; Emacs users. It picks per-size font pairs so 1 CJK glyph occupies
-;; exactly 2 ASCII columns, without manual rescale measurement.
-;;
-;; First run: `cnfonts-mode' applies a default profile. To pick a size
-;; interactively, use `M-x cnfonts-increase-fontsize' /
-;; `cnfonts-decrease-fontsize'; the choice persists in
-;; ~/.emacs.d/cnfonts/.
-(use-package cnfonts
-  :hook (after-init . cnfonts-mode)
-  :init
-  (setq cnfonts-default-fontsize 18
-        ;; Let the frame grow/shrink in pixels when cnfonts switches size,
-        ;; so the column/row count stays constant across profiles.
-        cnfonts-keep-frame-size nil
-        cnfonts-personal-fontnames
-        '(("JetBrains Mono" "Fira Code" "SF Mono" "Menlo")
-          ("Sarasa Mono SC" "PingFang SC" "Hiragino Sans GB" "STHeiti")
-          ("Sarasa Mono SC")
-          ("Sarasa Mono SC"))))
+;; Ubuntu Mono — installed under ~/Library/Fonts. CJK glyphs fall
+;; through to the system's Chinese font (PingFang SC etc.) via macOS'
+;; default fontset, so we don't wire CJK explicitly here.
+;; Org-table CJK alignment will need follow-up: PingFang isn't 1:2
+;; equal-width with Ubuntu Mono.
+(set-face-attribute 'default nil :family "Ubuntu Mono" :height 180)
 
 (setq window-divider-default-places t
       window-divider-default-bottom-width 1
