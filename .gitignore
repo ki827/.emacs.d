@@ -1,0 +1,11 @@
+elpa/
+eln-cache/
+var/
+auto-save-list/
+custom.el
+transient/
+recentf.eld
+history
+places.eld
+tramp
+.DS_Store
