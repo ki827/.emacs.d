@@ -390,16 +390,14 @@ NAME 非空则追加为文件名后缀。"
     (if proj (expand-file-name "img/" proj) my/prompts-img-dir)))
 
 (defun my/prompt--insert-image-path (file)
-  "按当前模式的语法插入图片 FILE 并立即内联显示。
+  "按当前模式的语法插入图片 FILE（不自动预览，SPC t i 手动开）。
 org 用 [[file:...]]，markdown 用 ![](...)——两种写法 agent 都能读到路径。"
   (unless (bolp) (insert "\n"))
   (cond
    ((derived-mode-p 'org-mode)
-    (insert (format "[[file:%s]]\n" file))
-    (when (display-graphic-p) (org-display-inline-images)))
+    (insert (format "[[file:%s]]\n" file)))
    ((derived-mode-p 'markdown-mode)
-    (insert (format "![](%s)\n" file))
-    (when (display-graphic-p) (markdown-display-inline-images)))
+    (insert (format "![](%s)\n" file)))
    (t (insert file "\n"))))
 
 (defun my/toggle-images ()
@@ -517,8 +515,7 @@ org 用 [[file:...]]，markdown 用 ![](...)——两种写法 agent 都能读�
 (with-eval-after-load 'org
   (setq org-startup-indented t
         org-return-follows-link t          ; 需求列表里回车跳转 prompt
-        org-startup-with-inline-images t   ; 打开文件即显示图片
-        org-image-actual-width 600         ; 显示宽度上限（retina 截图太大）
+        org-image-actual-width 600         ; 图片显示宽度上限（SPC t i 开启时）
         org-hide-emphasis-markers t
         org-log-done 'time
         org-todo-keywords
@@ -536,12 +533,6 @@ org 用 [[file:...]]，markdown 用 ![](...)——两种写法 agent 都能读�
          ;; 放在后面 → 压到 auto-mode-alist 更前，优先匹配
          ("README\\.md\\'" . gfm-mode))
   :custom
-  (markdown-max-image-size '(600 . nil))   ; 显示宽度上限
-  :config
-  ;; 打开文件即显示 ![](...) 图片
-  (add-hook 'markdown-mode-hook
-            (lambda ()
-              (when (display-graphic-p)
-                (markdown-display-inline-images)))))
+  (markdown-max-image-size '(600 . nil)))  ; 图片显示宽度上限（SPC t i 开启时）
 
 ;;; init.el ends here

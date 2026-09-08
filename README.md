@@ -19,9 +19,9 @@ corfu、cape（补全弹窗）、vertico、orderless、marginalia、consult（mi
 | `SPC s s / s n` | 当前文件行搜索 / 笔记目录全文搜索（均实时预览，consult） |
 | `SPC y` | buffer/选区入剪贴板（自动去行尾空白、压缩空行） |
 | `SPC p n / p f / p s / p i` | prompt 库：新建（选项目→选模板，输新项目名自动建目录）/ 打开 / 全文搜索 / 插入代码文件 |
-| `SPC p v / p c` | 剪贴板图片 / 框选截图 → 存所属项目的 `img/`（不在项目里存库根 `img/`），插成 `![]()` 或 `[[file:]]` 并内联显示 |
+| `SPC p v / p c` | 剪贴板图片 / 框选截图 → 存所属项目的 `img/`（不在项目里存库根 `img/`），插成 `![]()` 或 `[[file:]]` |
 | `SPC p r / p l` | 当前 prompt 登记进项目 `需求.org`（TODO+链接，自动去重）/ 打开项目需求列表 |
-| `SPC t i` | 内联图片显示开/关（org 与 markdown 通用） |
+| `SPC t i` | 内联图片显示开/关（org 与 markdown 通用；默认不预览） |
 | `SPC o a / o c / o o` | org agenda / capture / 打开笔记目录 |
 | `SPC w v / w s / w d / w o / w hjkl` | 分屏、关窗口、窗口间移动 |
 | `SPC t t` | 深/浅主题切换 |
