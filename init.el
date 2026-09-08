@@ -1,8 +1,9 @@
 ;;; init.el --- prompt 编辑器 + org/md 笔记 -*- lexical-binding: t; -*-
 
 ;; 定位：codex/claude code 的 prompt 编辑器 + org/md 笔记。
-;; 外部包 10 个：evil / evil-collection / general / markdown-mode /
-;; corfu / cape / vertico / orderless / marginalia / consult。
+;; 外部包 13 个：evil / evil-collection / general / markdown-mode /
+;; markdown-preview-mode / corfu / cape / vertico / orderless /
+;; marginalia / consult / dashboard / nerd-icons。
 ;; 设计记录见 docs/ 与 README.md（键位表）。
 
 ;;; ---------- 包管理 ----------
@@ -105,6 +106,33 @@
     (set-fontset-font t charset (font-spec :family "PingFang SC")))
   (setq face-font-rescale-alist '(("PingFang SC" . 1.2))))
 
+;;; ---------- 启动页 ----------
+;; dashboard：最近文件 + 各项目需求列表的未完成项（GTD 第一屏）
+(use-package nerd-icons)   ; 图标字体，缺字时 M-x nerd-icons-install-fonts
+
+(use-package dashboard
+  :custom
+  (dashboard-startup-banner 'logo)
+  (dashboard-banner-logo-title "写好 prompt，让 agent 干活")
+  (dashboard-center-content t)
+  (dashboard-vertically-center-content t)
+  (dashboard-items '((recents . 8) (agenda . 10)))
+  (dashboard-item-names '(("Recent Files:" . "最近文件")
+                          ("Agenda for today:" . "待办需求")
+                          ("Agenda for the coming week:" . "待办需求")))
+  (dashboard-display-icons-p t)
+  (dashboard-icon-type 'nerd-icons)
+  (dashboard-set-heading-icons t)
+  (dashboard-set-file-icons t)
+  (dashboard-set-footer nil)
+  ;; 需求条目大多没排日期：改成显示所有 TODO/DOING，按状态排序
+  (dashboard-week-agenda nil)
+  (dashboard-match-agenda-entry "TODO=\"TODO\"|TODO=\"DOING\"")
+  (dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+  (dashboard-agenda-sort-strategy '(todo-state-up))
+  :config
+  (dashboard-setup-startup-hook))
+
 ;;; ---------- evil ----------
 (use-package evil
   :init
@@ -184,6 +212,8 @@
     "t"  '(:ignore t :wk "切换")
     "tt" '(modus-themes-toggle :wk "深/浅主题")
     "ti" '(my/toggle-images    :wk "内联图片")
+    "tm" '(my/markdown-toggle-markup :wk "markdown 标记")
+    "tp" '(markdown-preview-mode     :wk "markdown 预览")
     ;; q: 退出
     "q"  '(:ignore t :wk "退出")
     "qq" '(save-buffers-kill-terminal :wk "退出 Emacs")))
@@ -256,6 +286,55 @@
     (hippie-expand nil)))
 
 (keymap-global-set "C-c f" #'my/complete-path)
+
+;;; ---------- 外部编辑（claude code/codex 的 Ctrl+G） ----------
+;; 流程：CLI 按 Ctrl+G → emacsclient 开临时文件 → Emacs 抢到前台 →
+;; 编辑完 ZZ / :wq / C-x # → 内容回填 CLI，焦点自动切回来源终端。
+
+(defvar my/server--caller-app nil
+  "本次外部编辑的来源 app bundle id，编辑完成后把焦点还给它。")
+
+(defun my/server--frontmost-bundle-id ()
+  "当前前台 app 的 bundle id（lsappinfo，无需系统授权）。"
+  (let ((out (shell-command-to-string
+              "lsappinfo info -only bundleid $(lsappinfo front) 2>/dev/null | cut -d'\"' -f4")))
+    (let ((id (string-trim out)))
+      (unless (string-empty-p id) id))))
+
+(defun my/server-finish ()
+  "保存并结束本次外部编辑（等价 C-x #）。"
+  (interactive)
+  (save-buffer)
+  (server-edit))
+
+(defun my/server--visit-setup ()
+  "server 打开文件时：抢焦点；临时 prompt 文件按 markdown 对待。"
+  ;; 记住来源终端，把 Emacs 拉到前台
+  (when (display-graphic-p)
+    (setq my/server--caller-app (my/server--frontmost-bundle-id))
+    (select-frame-set-input-focus (selected-frame)))
+  ;; Ctrl+G 的临时文件通常无扩展名：在临时目录且没识别出模式就当 markdown
+  (when (and buffer-file-name
+             (eq major-mode 'fundamental-mode)
+             (string-match-p "\\`/\\(?:private/\\)?\\(?:var/folders\\|tmp\\)/"
+                             (expand-file-name buffer-file-name)))
+    (markdown-mode))
+  (goto-char (point-max))               ; 光标停在草稿末尾接着写
+  ;; vim 习惯：ZZ = 保存并返回 CLI
+  (when (bound-and-true-p evil-local-mode)
+    (evil-local-set-key 'normal "ZZ" #'my/server-finish)))
+
+(defun my/server--return-focus ()
+  "编辑完成后把焦点交还来源 app。"
+  (when my/server--caller-app
+    (start-process "return-focus" nil "open" "-b" my/server--caller-app)
+    (setq my/server--caller-app nil)))
+
+(with-eval-after-load 'server
+  (add-hook 'server-visit-hook #'my/server--visit-setup)
+  (add-hook 'server-done-hook #'my/server--return-focus)
+  ;; :wq/:q 直接走，不再询问「buffer 仍有客户端」
+  (remove-hook 'kill-buffer-query-functions #'server-kill-buffer-query-function))
 
 ;;; ---------- prompt 工作流 ----------
 ;; Emacs 作为 codex/claude code 的 prompt 编辑器：
@@ -391,14 +470,17 @@ NAME 非空则追加为文件名后缀。"
 
 (defun my/prompt--insert-image-path (file)
   "按当前模式的语法插入图片 FILE（不自动预览，SPC t i 手动开）。
-org 用 [[file:...]]，markdown 用 ![](...)——两种写法 agent 都能读到路径。"
+org 用 [[file:...]]，markdown 用 ![文件名](...)——两种写法 agent 都能读到
+路径。markdown 的 alt 必须非空：markdown-hide-markup 隐藏链接标记后靠
+alt 撑显示，空 alt 会整行不可见，看起来像粘贴失败。"
   (unless (bolp) (insert "\n"))
   (cond
    ((derived-mode-p 'org-mode)
     (insert (format "[[file:%s]]\n" file)))
    ((derived-mode-p 'markdown-mode)
-    (insert (format "![](%s)\n" file)))
-   (t (insert file "\n"))))
+    (insert (format "![%s](%s)\n" (file-name-nondirectory file) file)))
+   (t (insert file "\n")))
+  (message "已插入图片 %s" (file-name-nondirectory file)))
 
 (defun my/toggle-images ()
   "内联图片显示开/关（org 与 markdown 通用）。"
@@ -533,6 +615,91 @@ org 用 [[file:...]]，markdown 用 ![](...)——两种写法 agent 都能读�
          ;; 放在后面 → 压到 auto-mode-alist 更前，优先匹配
          ("README\\.md\\'" . gfm-mode))
   :custom
-  (markdown-max-image-size '(600 . nil)))  ; 图片显示宽度上限（SPC t i 开启时）
+  (markdown-max-image-size '(600 . nil))   ; 图片显示宽度上限（SPC t i 开启时）
+  (markdown-command "multimarkdown")       ; 预览用的渲染器（brew 已装）
+  (markdown-header-scaling t)              ; 标题按层级放大加粗
+  (markdown-fontify-code-blocks-natively t) ; 围栏代码块按语言真高亮
+  (markdown-hide-markup t)                 ; 隐藏 **、`、# 等标记（SPC t m 切换）
+  (markdown-header-scaling-values '(1.2 1.15 1.1 1.05 1.0 1.0)) ; 默认 2.0 起太大
+  :hook (markdown-mode . my/markdown-icons-setup)
+  :config
+  ;; header-scaling 相关 defcustom 用 custom-initialize-default，
+  ;; :custom 路径不会触发它们的 :set，这里手动应用一次缩放 face
+  (markdown-update-header-faces markdown-header-scaling
+                                markdown-header-scaling-values))
+
+;; 标题/列表图标化：#→◉○◈…、-→•。只是显示层替换，文件内容不变。
+(defconst my/md-header-icons '("◉" "○" "◈" "◇" "▸" "▹")
+  "1–6 级标题对应的显示符号。")
+
+;; 正文随标题层级缩进（org-indent 风格）：line-prefix/wrap-prefix 显示层
+;; 属性，复制/保存的内容不受影响。标题行缩 (层级-1)*2 格，正文缩 层级*2 格。
+(defconst my/md-indent-pads
+  (vector "" "  " "    " "      " "        " "          " "            ")
+  "0–6 级对应的缩进前缀（每级 2 空格，同层级复用同一字符串）。")
+
+(defun my/markdown-indent-matcher (limit)
+  "font-lock matcher：按所属标题层级给行加缩进前缀，处理到 LIMIT。
+一次扫完整个区域，总是返回 nil（不产生高亮匹配）。"
+  (save-excursion
+    (forward-line 0)
+    (let ((level (save-excursion       ; 区域起点处所属的标题层级
+                   (if (re-search-backward "^\\(#\\{1,6\\}\\)[ \t]" nil t)
+                       (- (match-end 1) (match-beginning 1))
+                     0))))
+      (while (< (point) limit)
+        (let ((next (min (line-beginning-position 2) (point-max)))
+              (heading (looking-at "\\(#\\{1,6\\}\\)[ \t]")))
+          (when heading
+            (setq level (- (match-end 1) (match-beginning 1))))
+          (let ((pad (aref my/md-indent-pads (if heading (1- level) level))))
+            (put-text-property (point) next 'line-prefix pad)
+            (put-text-property (point) next 'wrap-prefix pad))
+          (goto-char next)))))
+  nil)
+
+(defun my/markdown-icons-setup ()
+  "给当前 markdown buffer 加标题/列表符号的图标化 font-lock 规则。"
+  (font-lock-add-keywords
+   nil
+   '(;; 层级缩进（见 my/markdown-indent-matcher）
+     (my/markdown-indent-matcher)
+     ;; 标题：markdown 隐藏「#+空格」用的是 display "" 属性，而 display
+     ;; 渲染优先级高于 composition——所以这里直接把 display 覆写成图标。
+     ;; 本规则排在 markdown 规则之后，每轮 fontify 都以图标为准；
+     ;; display 在 font-lock-extra-managed-props 里，SPC t m 显示原始
+     ;; 标记时由 font-lock 自动清掉
+     ("^\\(#\\{1,6\\}\\)\\([ \t]+\\)"
+      (2 (progn
+           (when (and markdown-hide-markup
+                      (not (markdown-code-block-at-point-p (match-beginning 0))))
+             (put-text-property (match-beginning 1) (match-end 2)
+                                'display
+                                (concat (nth (1- (- (match-end 1)
+                                                    (match-beginning 1)))
+                                             my/md-header-icons)
+                                        " ")))
+           nil)))
+     ;; 列表符号 - * + → •（代码块里不动）
+     ("^[ \t]*\\([-*+]\\) "
+      (1 (progn
+           (if (markdown-code-block-at-point-p (match-beginning 0))
+               (decompose-region (match-beginning 1) (match-end 1))
+             (compose-region (match-beginning 1) (match-end 1) "•"))
+           nil))))
+   'append))
+
+(defun my/markdown-toggle-markup ()
+  "markdown 标记符号显示开/关（**、`、# 与标题图标联动）。"
+  (interactive)
+  (if (derived-mode-p 'markdown-mode)
+      (progn (markdown-toggle-markup-hiding 'toggle)
+             (font-lock-flush))              ; 图标规则依赖该变量，需重新 fontify
+    (message "当前不是 markdown buffer")))
+
+;; 浏览器实时预览：本地 multimarkdown 渲染 + websocket 自动刷新，
+;; 内容不出本机（这也是不选 grip 的原因：grip 把内容发 GitHub API）。
+(use-package markdown-preview-mode
+  :commands (markdown-preview-mode))
 
 ;;; init.el ends here

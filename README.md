@@ -1,9 +1,13 @@
 # ~/.emacs.d
 
 精简配置，两个定位：**codex/claude code 的 prompt 编辑器** + org/markdown 笔记。
-evil（vim 键位），外部包 10 个：evil、evil-collection、general、markdown-mode、
-corfu、cape（补全弹窗）、vertico、orderless、marginalia、consult（minibuffer），
+evil（vim 键位），外部包 13 个：evil、evil-collection、general、markdown-mode、
+markdown-preview-mode（浏览器预览）、corfu、cape（补全弹窗）、vertico、orderless、
+marginalia、consult（minibuffer）、dashboard、nerd-icons（启动页），
 其余用 Emacs 内置功能。
+
+启动页显示最近文件和所有项目的待办需求（TODO/DOING），条目上回车直达；
+`r`/`a` 跳到对应区块。
 设计记录见 `docs/2026-09-08-notes-config-design.md`。
 
 ## 首次启动
@@ -22,6 +26,8 @@ corfu、cape（补全弹窗）、vertico、orderless、marginalia、consult（mi
 | `SPC p v / p c` | 剪贴板图片 / 框选截图 → 存所属项目的 `img/`（不在项目里存库根 `img/`），插成 `![]()` 或 `[[file:]]` |
 | `SPC p r / p l` | 当前 prompt 登记进项目 `需求.org`（TODO+链接，自动去重）/ 打开项目需求列表 |
 | `SPC t i` | 内联图片显示开/关（org 与 markdown 通用；默认不预览） |
+| `SPC t m` | markdown 标记符号显示开/关（`**`、`` ` ``、`#`，默认隐藏） |
+| `SPC t p` | markdown 浏览器实时预览开/关（保存自动刷新） |
 | `SPC o a / o c / o o` | org agenda / capture / 打开笔记目录 |
 | `SPC w v / w s / w d / w o / w hjkl` | 分屏、关窗口、窗口间移动 |
 | `SPC t t` | 深/浅主题切换 |
@@ -32,6 +38,18 @@ corfu、cape（补全弹窗）、vertico、orderless、marginalia、consult（mi
 补全弹窗（corfu + cape）：输入路径（`~/`、`/`、`../`）或词语时自动弹出候选，
 `C-n/C-p` 选择、TAB 确认。自动弹窗嫌吵可在 init.el 里把 `corfu-auto` 设为 nil，
 改用 `C-M-i` 手动触发。
+
+## markdown 美化（2026-09-08）
+
+编辑区即成品感：标题按层级放大加粗、`#` 显示为 `◉ ○ ◈ ◇ ▸ ▹`、列表 `-` 显示为
+`•`、围栏代码块按语言真高亮、`**`/`` ` `` 等标记默认隐藏（`SPC t m` 看原始文本）。
+图标只是显示层替换（标题走 display 属性、列表走 compose），文件内容不变，
+代码块内不受影响。正文还会随标题层级缩进（org-indent 风格，标题缩
+(层级-1)×2 格、正文缩 层级×2 格，line-prefix 显示层实现，复制/保存不带缩进）。
+
+浏览器预览（`SPC t p`）走本地 multimarkdown（`brew install multimarkdown` 已装）
++ websocket 自动刷新，内容不出本机——没选 grip 就是因为它把内容发 GitHub API
+渲染，prompt 里常有工作代码。
 
 ## 输入法
 
@@ -49,7 +67,13 @@ prompt。所有需求列表自动进 agenda——`SPC o a` 总览全部项目的
 ## 终端联动
 
 Emacs 启动时开了 server，终端里 `ec 文件`（= `emacsclient -n`，已加进
-~/.zshrc）把文件秒开到现有 GUI 窗口。
+~/.zshrc）把文件秒开到现有 GUI 窗口。`EDITOR`/`VISUAL` 设为
+`emacsclient -a vim`；Emacs 没开则退回 vim。
+
+**Ctrl+G 外部编辑**（claude code/codex）已做专门适配：按下后 Emacs 自动到
+前台，临时文件自动按 markdown 处理（软换行/高亮/补全/SPC p 工具都在），光标停在
+草稿末尾；写完 `ZZ`（= 保存并返回，也可 `:wq` / `C-x #`），内容回填 CLI 且焦点
+自动切回来源终端，全程不碰鼠标。
 
 ## prompt 模板
 
