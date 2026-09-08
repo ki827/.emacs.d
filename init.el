@@ -105,6 +105,33 @@
     (set-fontset-font t charset (font-spec :family "PingFang SC")))
   (setq face-font-rescale-alist '(("PingFang SC" . 1.2))))
 
+;;; ---------- 启动页 ----------
+;; dashboard：最近文件 + 各项目需求列表的未完成项（GTD 第一屏）
+(use-package nerd-icons)   ; 图标字体，缺字时 M-x nerd-icons-install-fonts
+
+(use-package dashboard
+  :custom
+  (dashboard-startup-banner 'logo)
+  (dashboard-banner-logo-title "写好 prompt，让 agent 干活")
+  (dashboard-center-content t)
+  (dashboard-vertically-center-content t)
+  (dashboard-items '((recents . 8) (agenda . 10)))
+  (dashboard-item-names '(("Recent Files:" . "最近文件")
+                          ("Agenda for today:" . "待办需求")
+                          ("Agenda for the coming week:" . "待办需求")))
+  (dashboard-display-icons-p t)
+  (dashboard-icon-type 'nerd-icons)
+  (dashboard-set-heading-icons t)
+  (dashboard-set-file-icons t)
+  (dashboard-set-footer nil)
+  ;; 需求条目大多没排日期：改成显示所有 TODO/DOING，按状态排序
+  (dashboard-week-agenda nil)
+  (dashboard-match-agenda-entry "TODO=\"TODO\"|TODO=\"DOING\"")
+  (dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
+  (dashboard-agenda-sort-strategy '(todo-state-up))
+  :config
+  (dashboard-setup-startup-hook))
+
 ;;; ---------- evil ----------
 (use-package evil
   :init
@@ -256,6 +283,55 @@
     (hippie-expand nil)))
 
 (keymap-global-set "C-c f" #'my/complete-path)
+
+;;; ---------- 外部编辑（claude code/codex 的 Ctrl+G） ----------
+;; 流程：CLI 按 Ctrl+G → emacsclient 开临时文件 → Emacs 抢到前台 →
+;; 编辑完 ZZ / :wq / C-x # → 内容回填 CLI，焦点自动切回来源终端。
+
+(defvar my/server--caller-app nil
+  "本次外部编辑的来源 app bundle id，编辑完成后把焦点还给它。")
+
+(defun my/server--frontmost-bundle-id ()
+  "当前前台 app 的 bundle id（lsappinfo，无需系统授权）。"
+  (let ((out (shell-command-to-string
+              "lsappinfo info -only bundleid $(lsappinfo front) 2>/dev/null | cut -d'\"' -f4")))
+    (let ((id (string-trim out)))
+      (unless (string-empty-p id) id))))
+
+(defun my/server-finish ()
+  "保存并结束本次外部编辑（等价 C-x #）。"
+  (interactive)
+  (save-buffer)
+  (server-edit))
+
+(defun my/server--visit-setup ()
+  "server 打开文件时：抢焦点；临时 prompt 文件按 markdown 对待。"
+  ;; 记住来源终端，把 Emacs 拉到前台
+  (when (display-graphic-p)
+    (setq my/server--caller-app (my/server--frontmost-bundle-id))
+    (select-frame-set-input-focus (selected-frame)))
+  ;; Ctrl+G 的临时文件通常无扩展名：在临时目录且没识别出模式就当 markdown
+  (when (and buffer-file-name
+             (eq major-mode 'fundamental-mode)
+             (string-match-p "\\`/\\(?:private/\\)?\\(?:var/folders\\|tmp\\)/"
+                             (expand-file-name buffer-file-name)))
+    (markdown-mode))
+  (goto-char (point-max))               ; 光标停在草稿末尾接着写
+  ;; vim 习惯：ZZ = 保存并返回 CLI
+  (when (bound-and-true-p evil-local-mode)
+    (evil-local-set-key 'normal "ZZ" #'my/server-finish)))
+
+(defun my/server--return-focus ()
+  "编辑完成后把焦点交还来源 app。"
+  (when my/server--caller-app
+    (start-process "return-focus" nil "open" "-b" my/server--caller-app)
+    (setq my/server--caller-app nil)))
+
+(with-eval-after-load 'server
+  (add-hook 'server-visit-hook #'my/server--visit-setup)
+  (add-hook 'server-done-hook #'my/server--return-focus)
+  ;; :wq/:q 直接走，不再询问「buffer 仍有客户端」
+  (remove-hook 'kill-buffer-query-functions #'server-kill-buffer-query-function))
 
 ;;; ---------- prompt 工作流 ----------
 ;; Emacs 作为 codex/claude code 的 prompt 编辑器：

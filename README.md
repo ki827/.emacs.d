@@ -1,9 +1,12 @@
 # ~/.emacs.d
 
 精简配置，两个定位：**codex/claude code 的 prompt 编辑器** + org/markdown 笔记。
-evil（vim 键位），外部包 10 个：evil、evil-collection、general、markdown-mode、
-corfu、cape（补全弹窗）、vertico、orderless、marginalia、consult（minibuffer），
-其余用 Emacs 内置功能。
+evil（vim 键位），外部包 12 个：evil、evil-collection、general、markdown-mode、
+corfu、cape（补全弹窗）、vertico、orderless、marginalia、consult（minibuffer）、
+dashboard、nerd-icons（启动页），其余用 Emacs 内置功能。
+
+启动页显示最近文件和所有项目的待办需求（TODO/DOING），条目上回车直达；
+`r`/`a` 跳到对应区块。
 设计记录见 `docs/2026-09-08-notes-config-design.md`。
 
 ## 首次启动
@@ -49,7 +52,13 @@ prompt。所有需求列表自动进 agenda——`SPC o a` 总览全部项目的
 ## 终端联动
 
 Emacs 启动时开了 server，终端里 `ec 文件`（= `emacsclient -n`，已加进
-~/.zshrc）把文件秒开到现有 GUI 窗口。
+~/.zshrc）把文件秒开到现有 GUI 窗口。`EDITOR`/`VISUAL` 设为
+`emacsclient -a vim`；Emacs 没开则退回 vim。
+
+**Ctrl+G 外部编辑**（claude code/codex）已做专门适配：按下后 Emacs 自动到
+前台，临时文件自动按 markdown 处理（软换行/高亮/补全/SPC p 工具都在），光标停在
+草稿末尾；写完 `ZZ`（= 保存并返回，也可 `:wq` / `C-x #`），内容回填 CLI 且焦点
+自动切回来源终端，全程不碰鼠标。
 
 ## prompt 模板
 
