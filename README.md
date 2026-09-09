@@ -45,6 +45,10 @@ marginalia、consult（minibuffer）、dashboard、nerd-icons（启动页），
 `my/code-root`，第一次用时问一次自动写入；不在 prompt 库里的文件用 project.el
 识别的项目根。列表用 `fd` 生成（遵守 .gitignore），30 秒内复用。
 
+`/模板`（仿 claude code 的 /命令）：行首敲 `/` 弹出 `~/prompts/templates/` 里的
+模板名，模糊过滤选中后整行替换为模板内容，光标停在第一个标题下。claude code /
+codex 按 Ctrl+G 打开的临时 buffer 里同样可用；行中间的 `/`（路径）不触发。
+
 ## markdown 美化（2026-09-08）
 
 编辑区即成品感：标题按层级放大加粗、`#` 显示为 `◉ ○ ◈ ◇ ▸ ▹`、列表 `-` 显示为
