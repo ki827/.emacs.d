@@ -39,6 +39,12 @@ marginalia、consult（minibuffer）、dashboard、nerd-icons（启动页），
 `C-n/C-p` 选择、TAB 确认。自动弹窗嫌吵可在 init.el 里把 `corfu-auto` 设为 nil，
 改用 `C-M-i` 手动触发。
 
+`@文件`引用（仿 claude code）：在 markdown/org 里敲 `@` 立刻弹出代码项目的文件
+列表，连着敲字母按子序列模糊过滤（`@iosapple` 能命中 `apps/ios/AppleLogin.swift`），
+选中插入 `@相对路径`。代码目录来自 `~/prompts/<项目>/.dir-locals.el` 的
+`my/code-root`，第一次用时问一次自动写入；不在 prompt 库里的文件用 project.el
+识别的项目根。列表用 `fd` 生成（遵守 .gitignore），30 秒内复用。
+
 ## markdown 美化（2026-09-08）
 
 编辑区即成品感：标题按层级放大加粗、`#` 显示为 `◉ ○ ◈ ◇ ▸ ▹`、列表 `-` 显示为
@@ -59,10 +65,14 @@ marginalia、consult（minibuffer）、dashboard、nerd-icons（启动页），
 
 ## 需求列表（GTD）
 
-每个项目一个 `~/prompts/<项目>/需求.org`：条目 = TODO 状态 + 指向 prompt 的
-相对链接。写完 prompt 按 `SPC p r` 登记，`SPC p l` 打开列表，回车跟链接跳到
-prompt。所有需求列表自动进 agenda——`SPC o a` 总览全部项目的需求状态，
-`t` 键流转 TODO → DOING → DONE。md 管内容（发给 agent），org 管状态（GTD）。
+每个项目一个 `~/prompts/<项目>/需求.org`：条目 = 需求状态 + 指向 prompt 的
+相对链接。状态按软件需求生命周期定义：
+`NEW`（新提出）→ `TODO`（确认排期）→ `DOING`（开发中）→ `VERIFY`（待验收）→
+`DONE`（验收通过）/ `CANCELED`（取消），快速键 n/t/i/v/d/c。
+写完 prompt 按 `SPC p r` 登记（初始 TODO；capture 快速记录的想法是 NEW），
+`SPC p l` 打开列表，回车跟链接跳到 prompt。所有需求列表自动进 agenda——
+`SPC o a` 总览全部项目的需求状态，`t` 键流转状态。启动页显示全部未完结
+需求（NEW/TODO/DOING/VERIFY）。md 管内容（发给 agent），org 管状态（GTD）。
 
 ## 终端联动
 

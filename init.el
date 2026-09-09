@@ -125,9 +125,10 @@
   (dashboard-set-heading-icons t)
   (dashboard-set-file-icons t)
   (dashboard-set-footer nil)
-  ;; 需求条目大多没排日期：改成显示所有 TODO/DOING，按状态排序
+  ;; 需求条目大多没排日期：显示所有未完结状态，按状态排序
   (dashboard-week-agenda nil)
-  (dashboard-match-agenda-entry "TODO=\"TODO\"|TODO=\"DOING\"")
+  (dashboard-match-agenda-entry
+   "TODO=\"NEW\"|TODO=\"TODO\"|TODO=\"DOING\"|TODO=\"VERIFY\"")
   (dashboard-filter-agenda-entry 'dashboard-no-filter-agenda)
   (dashboard-agenda-sort-strategy '(todo-state-up))
   :config
@@ -267,7 +268,22 @@
   (corfu-auto t)
   (corfu-auto-delay 0.2)
   (corfu-auto-prefix 2)
-  (corfu-cycle t))
+  (corfu-cycle t)
+  :config
+  ;; corfu 按默认字体（Menlo，16px）算弹窗行高，但中文用苹方渲染行高 22px，
+  ;; 含中文的候选会被裁掉下半截。弹窗内改按两种字体中较大的行高计算。
+  (defun my/corfu--cjk-line-height (orig &rest args)
+    (let* ((cjk (if-let* (((display-graphic-p))
+                          (font (font-at 0 nil "中")))
+                    (aref (font-info font) 3)   ; 字体最大高度（含上下伸出）
+                  0))
+           (dlh (symbol-function 'default-line-height)))
+      (cl-letf (((symbol-function 'default-line-height)
+                 (lambda (&rest a)
+                   (let ((h (apply dlh a)))
+                     (if (equal (buffer-name) " *corfu*") (max h cjk) h)))))
+        (apply orig args))))
+  (advice-add 'corfu--popup-show :around #'my/corfu--cjk-line-height))
 
 (use-package cape
   :init
@@ -585,6 +601,120 @@ alt 撑显示，空 alt 会整行不可见，看起来像粘贴失败。"
                         (cons '(:eval (format " %d字" (- (point-max) (point-min))))
                               mode-line-misc-info))))
 
+;;; ---------- @ 文件引用（仿 claude code） ----------
+;; 在 prompt 里输入 @ 弹出代码项目的文件列表，选中插入 @相对路径，
+;; 和 claude code 的 @文件 写法一致。代码根目录按优先级：
+;; buffer 的 my/code-root（来自 ~/prompts/<项目>/.dir-locals.el，
+;; 第一次用时问一次并写入）→ project.el 识别的项目根 → 当前目录。
+
+(defvar-local my/code-root nil
+  "本 prompt 项目对应的代码根目录（dir-local，@ 补全列它的文件）。")
+(put 'my/code-root 'safe-local-variable #'stringp)
+
+(defvar my/at-file--cache nil
+  "(root files time)：上次列出的文件表，30 秒内复用。")
+
+(defun my/at-file--files (root)
+  "ROOT 下全部文件与目录的相对路径（目录带 /，排除 .git，遵守 .gitignore）。"
+  (let* ((default-directory root)
+         (cache my/at-file--cache))
+    (if (and cache (equal (nth 0 cache) root)
+             (< (float-time (time-since (nth 2 cache))) 30))
+        (nth 1 cache)
+      (let ((files
+             (cond
+              ((executable-find "fd")
+               (process-lines "fd" "--hidden" "--exclude" ".git"
+                              "--strip-cwd-prefix"))
+              ((executable-find "git")
+               (process-lines "git" "ls-files" "--cached" "--others"
+                              "--exclude-standard")))))
+        ;; 目录统一成一个尾随 /（fd 已带、git 不带）；git ls-files 只有
+        ;; 文件，从路径推出中间目录
+        (setq files
+              (delete-dups
+               (cl-loop for f in files
+                        if (file-directory-p f)
+                        collect (concat (directory-file-name f) "/")
+                        else append
+                        (let ((dirs nil) (d (file-name-directory f)))
+                          (while (and d (not (string-empty-p d)))
+                            (push d dirs)
+                            (setq d (file-name-directory
+                                     (directory-file-name d))))
+                          (cons f dirs)))))
+        (setq my/at-file--cache (list root files (current-time)))
+        files))))
+
+(defun my/at-file--dir-locals-set (dir var value)
+  "把 VAR=VALUE 写进 DIR/.dir-locals.el 的 nil 模式类（已有则替换）。"
+  (let* ((file (expand-file-name ".dir-locals.el" dir))
+         (spec (and (file-exists-p file)
+                    (with-temp-buffer
+                      (insert-file-contents file)
+                      (ignore-errors (read (current-buffer))))))
+         (all (alist-get nil spec)))
+    (setf (alist-get var all) value)
+    (setf (alist-get nil spec) all)
+    (with-temp-file file
+      (insert ";; 由 my/at-file 自动写入：@ 补全列这个目录的文件\n")
+      (pp spec (current-buffer)))))
+
+(defun my/at-file--root ()
+  "当前 buffer 的代码根目录（带 /）。prompt 项目里第一次用会问一次并记住。"
+  (file-name-as-directory
+   (cond
+    (my/code-root my/code-root)
+    ((my/prompt--project-of buffer-file-name)
+     (let* ((proj (my/prompt--project-of buffer-file-name))
+            (dir (expand-file-name
+                  (read-directory-name
+                   (format "项目「%s」的代码目录: "
+                           (file-name-nondirectory (directory-file-name proj)))
+                   "~/" nil t))))
+       (my/at-file--dir-locals-set proj 'my/code-root dir)
+       (setq-local my/code-root dir)))
+    ((project-current) (project-root (project-current)))
+    (t default-directory))))
+
+(defun my/at-file-capf ()
+  "光标前是「@路径片段」时补全代码项目的文件；候选带 @ 前缀，整段替换。"
+  (let ((beg (1- (save-excursion
+                   (skip-chars-backward "^ \t\n@" (line-beginning-position))
+                   (point)))))
+    (when (and (>= beg (line-beginning-position))
+               (eq (char-after beg) ?@)
+               ;; @ 前得是行首/空白/括号，foo@bar 这种邮箱不算
+               (or (= beg (line-beginning-position))
+                   (memq (char-before beg) '(?\s ?\t ?\( ?\[ ?， ?（))))
+      (let* ((root (my/at-file--root))
+           (cands (mapcar (lambda (f) (concat "@" f)) (my/at-file--files root))))
+      (list beg (point)
+            (lambda (str pred action)
+              (if (eq action 'metadata)
+                  '(metadata (category . at-file))
+                (complete-with-action action cands str pred)))
+            :exclusive 'no)))))
+
+;; 候选按子序列模糊匹配：@ 后连着敲 iosapple 就能命中 apps/ios/AppleLogin.swift
+(with-eval-after-load 'orderless
+  (orderless-define-completion-style my/orderless-flex
+    (orderless-matching-styles '(orderless-flex)))
+  (add-to-list 'completion-category-overrides
+               '(at-file (styles my/orderless-flex))))
+
+(defun my/at-file--maybe-popup ()
+  "在文本 buffer 里敲出 @ 后立刻弹补全。"
+  (when (and (eq last-command-event ?@)
+             (derived-mode-p 'text-mode)
+             (not (minibufferp)))
+    (completion-at-point)))
+
+(add-hook 'text-mode-hook
+          (lambda ()
+            (add-hook 'completion-at-point-functions #'my/at-file-capf -10 t)
+            (add-hook 'post-self-insert-hook #'my/at-file--maybe-popup nil t)))
+
 ;;; ---------- org ----------
 (setq org-directory (expand-file-name "~/org/")
       org-default-notes-file (expand-file-name "inbox.org" org-directory)
@@ -600,12 +730,23 @@ alt 撑显示，空 alt 会整行不可见，看起来像粘贴失败。"
         org-image-actual-width 600         ; 图片显示宽度上限（SPC t i 开启时）
         org-hide-emphasis-markers t
         org-log-done 'time
+        ;; 需求生命周期：提出 → 确认排期 → 开发 → 验收 → 完结
         org-todo-keywords
-        '((sequence "TODO(t)" "DOING(i)" "|" "DONE(d)" "CANCELED(c)"))))
+        '((sequence "NEW(n)"      ; 新提出，还没想清楚
+                    "TODO(t)"     ; 已确认要做，排队中
+                    "DOING(i)"    ; 开发中（agent 干活中）
+                    "VERIFY(v)"   ; 待验收（agent 交付，等人验）
+                    "|"
+                    "DONE(d)"     ; 验收通过
+                    "CANCELED(c)")) ; 取消/拒绝
+        org-todo-keyword-faces
+        '(("NEW"    . shadow)                  ; 灰：还在想法池
+          ("DOING"  . warning)                 ; 橙：进行中
+          ("VERIFY" . font-lock-constant-face)))) ; 蓝：等验收，最该看
 
 (setq org-capture-templates
       '(("t" "待办" entry (file+headline org-default-notes-file "Tasks")
-         "* TODO %?\n  %U")
+         "* NEW %?\n  %U")
         ("n" "笔记" entry (file+headline org-default-notes-file "Notes")
          "* %?\n  %U")))
 
