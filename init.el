@@ -403,16 +403,33 @@
         (make-directory dir t)
         dir))))
 
+(defun my/prompt--template-names ()
+  "模板名列表：templates/ 下的 .md 文件名去掉扩展名。"
+  (when (file-directory-p my/prompt-templates-dir)
+    (mapcar #'file-name-sans-extension
+            (directory-files my/prompt-templates-dir nil "\\.md\\'"))))
+
+(defun my/prompt--insert-template (name)
+  "在光标处插入模板 NAME（「默认」用内置骨架），光标停在第一个标题的下一行。"
+  (let ((beg (point)))
+    (if (equal name "默认")
+        (insert my/prompt-template)
+      (insert (with-temp-buffer
+                (insert-file-contents
+                 (expand-file-name (concat name ".md") my/prompt-templates-dir))
+                (buffer-string))))
+    (let ((end (point)))
+      (goto-char beg)
+      (unless (re-search-forward "^# .*\n" end t)
+        (goto-char end)))))
+
 (defun my/prompt-new (name)
   "在 prompt 库新建时间戳命名的 markdown：先选项目、再选模板。
 NAME 非空则追加为文件名后缀。"
   (interactive "s名字（可空）: ")
   (make-directory my/prompts-dir t)
   (let* ((project-dir (my/prompt--read-project))
-         (templates (and (file-directory-p my/prompt-templates-dir)
-                         (mapcar #'file-name-sans-extension
-                                 (directory-files my/prompt-templates-dir
-                                                  nil "\\.md\\'"))))
+         (templates (my/prompt--template-names))
          (choice (if templates
                      (completing-read "模板: " (cons "默认" templates) nil t)
                    "默认"))
@@ -425,13 +442,30 @@ NAME 非空则追加为文件名后缀。"
                 project-dir)))
     (find-file file)
     (when (zerop (buffer-size))
-      (if (equal choice "默认")
-          (insert my/prompt-template)
-        (insert-file-contents
-         (expand-file-name (concat choice ".md") my/prompt-templates-dir)))
-      ;; 光标停在第一个标题的下一行
-      (goto-char (point-min))
-      (re-search-forward "^# .*\n" nil t))))
+      (my/prompt--insert-template choice))))
+
+;; 行首敲 / 弹模板列表（仿 claude code 的 /命令），选中后整行替换为模板；
+;; Ctrl+G 打开的临时 buffer 也是 markdown，所以在 claude code/codex 里同样能用
+(defun my/template-capf ()
+  "行首是「/模板名片段」时补全 prompt 模板，选中后整行替换为模板内容。"
+  (let ((bol (line-beginning-position)))
+    (when (string-match "\\`[ \t]*\\(/[^ \t\n/]*\\)\\'"
+                        (buffer-substring-no-properties bol (point)))
+      (let ((beg (+ bol (match-beginning 1)))
+            (cands (mapcar (lambda (n) (concat "/" n))
+                           (my/prompt--template-names))))
+        (when cands
+          (list beg (point)
+                (lambda (str pred action)
+                  (if (eq action 'metadata)
+                      '(metadata (category . prompt-template))
+                    (complete-with-action action cands str pred)))
+                :exclusive 'no
+                :exit-function
+                (lambda (str status)
+                  (when (memq status '(finished exact))
+                    (delete-region (line-beginning-position) (point))
+                    (my/prompt--insert-template (substring str 1))))))))))
 
 (defun my/prompt-find ()
   "在 prompt 库目录里找文件。"
@@ -696,24 +730,31 @@ alt 撑显示，空 alt 会整行不可见，看起来像粘贴失败。"
                 (complete-with-action action cands str pred)))
             :exclusive 'no)))))
 
-;; 候选按子序列模糊匹配：@ 后连着敲 iosapple 就能命中 apps/ios/AppleLogin.swift
+;; @文件 和 /模板 的候选都按子序列模糊匹配：
+;; @ 后连着敲 iosapple 就能命中 apps/ios/AppleLogin.swift
 (with-eval-after-load 'orderless
   (orderless-define-completion-style my/orderless-flex
     (orderless-matching-styles '(orderless-flex)))
-  (add-to-list 'completion-category-overrides
-               '(at-file (styles my/orderless-flex))))
+  (dolist (cat '(at-file prompt-template))
+    (add-to-list 'completion-category-overrides
+                 `(,cat (styles my/orderless-flex)))))
 
-(defun my/at-file--maybe-popup ()
-  "在文本 buffer 里敲出 @ 后立刻弹补全。"
-  (when (and (eq last-command-event ?@)
-             (derived-mode-p 'text-mode)
-             (not (minibufferp)))
+(defun my/prompt--maybe-popup ()
+  "在文本 buffer 里敲出 @ 或行首 / 后立刻弹补全。"
+  (when (and (derived-mode-p 'text-mode)
+             (not (minibufferp))
+             (or (eq last-command-event ?@)
+                 (and (eq last-command-event ?/)
+                      (string-match-p "\\`[ \t]*/\\'"
+                                      (buffer-substring-no-properties
+                                       (line-beginning-position) (point))))))
     (completion-at-point)))
 
 (add-hook 'text-mode-hook
           (lambda ()
             (add-hook 'completion-at-point-functions #'my/at-file-capf -10 t)
-            (add-hook 'post-self-insert-hook #'my/at-file--maybe-popup nil t)))
+            (add-hook 'completion-at-point-functions #'my/template-capf -10 t)
+            (add-hook 'post-self-insert-hook #'my/prompt--maybe-popup nil t)))
 
 ;;; ---------- org ----------
 (setq org-directory (expand-file-name "~/org/")
