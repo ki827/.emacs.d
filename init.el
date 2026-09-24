@@ -1,9 +1,10 @@
 ;;; init.el --- prompt 编辑器 + org/md 笔记 -*- lexical-binding: t; -*-
 
 ;; 定位：codex/claude code 的 prompt 编辑器 + org/md 笔记。
-;; 外部包 13 个：evil / evil-collection / general / markdown-mode /
-;; markdown-preview-mode / corfu / cape / vertico / orderless /
-;; marginalia / consult / dashboard / nerd-icons。
+;; 外部包 15 个：evil / evil-collection / evil-escape / general /
+;; markdown-mode / markdown-preview-mode / corfu / cape / vertico /
+;; orderless / marginalia / consult / dashboard / nerd-icons / helpful。
+;; 键位参照 Doom Emacs（SPC leader + SPC m 本地 leader）。
 ;; 设计记录见 docs/ 与 README.md（键位表）。
 
 ;;; ---------- 包管理 ----------
@@ -151,37 +152,202 @@
   :config
   (evil-collection-init))
 
+;; insert 态快速敲 jk 回 normal（Doom 默认），比够 ESC 顺手
+(use-package evil-escape
+  :after evil
+  :custom
+  (evil-escape-key-sequence "jk")
+  (evil-escape-delay 0.15)
+  (evil-escape-excluded-states '(normal visual motion emacs))
+  :config
+  (evil-escape-mode 1))
+
+;; 更全的帮助页：源码、引用处、键位一页看完（Doom 的 SPC h 用的就是它）
+(use-package helpful
+  :bind (([remap describe-function] . helpful-callable)
+         ([remap describe-variable] . helpful-variable)
+         ([remap describe-key]      . helpful-key)
+         ([remap describe-command]  . helpful-command)
+         ([remap describe-symbol]   . helpful-symbol)))
+
+(winner-mode 1)                        ; 窗口布局撤销/重做（SPC w u / w r）
+
 ;; 在 ~/org/ 里全文搜索（rg 已装在机器上）
 (defun my/search-notes ()
   "在 `org-directory' 里实时全文搜索。"
   (interactive)
   (consult-ripgrep org-directory))
 
+;;; Doom 风格 leader 用到的小命令
+(defun my/find-file-in-project ()
+  "在项目里找文件（SPC SPC）；不在项目里就普通 find-file。"
+  (interactive)
+  (if (project-current)
+      (project-find-file)
+    (call-interactively #'find-file)))
+
+(defun my/search-symbol-in-project ()
+  "项目内搜索光标处的词（SPC *）。"
+  (interactive)
+  (consult-ripgrep nil (thing-at-point 'symbol t)))
+
+(defun my/search-cwd ()
+  "在当前目录下全文搜索（SPC s d）。"
+  (interactive)
+  (consult-ripgrep default-directory))
+
+(defun my/open-config ()
+  "打开 init.el。"
+  (interactive)
+  (find-file (expand-file-name "init.el" user-emacs-directory)))
+
+(defun my/reload-config ()
+  "重新加载 init.el（SPC h r）。"
+  (interactive)
+  (load user-init-file nil t)
+  (message "init.el 已重新加载"))
+
+(defun my/yank-file-path (&optional relative)
+  "复制当前文件路径；RELATIVE 非 nil 时复制相对项目根的路径。"
+  (interactive)
+  (let* ((path (or buffer-file-name
+                   (user-error "当前 buffer 没有对应文件")))
+         (proj (and relative (project-current)))
+         (s (if proj
+                (file-relative-name path (project-root proj))
+              (abbreviate-file-name path))))
+    (kill-new s)
+    (message "已复制：%s" s)))
+
+(defun my/yank-relative-path ()
+  "复制当前文件相对项目根的路径（SPC f Y）。"
+  (interactive)
+  (my/yank-file-path t))
+
+(defun my/delete-this-file ()
+  "删除当前文件（进废纸篓）并关掉 buffer。"
+  (interactive)
+  (let ((file (or buffer-file-name
+                  (user-error "当前 buffer 没有对应文件"))))
+    (when (y-or-n-p (format "删除 %s？" (abbreviate-file-name file)))
+      (delete-file file t)
+      (kill-buffer)
+      (message "已删除（在废纸篓）：%s" (abbreviate-file-name file)))))
+
+;; SPC ' 重开上一次的搜索/补全会话（vertico 自带扩展）
+(add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
+
 (use-package general
   :after evil
   :config
+  ;; 与 Doom 一致：normal/visual 下 SPC，insert/emacs 下 M-SPC（Option+空格）
   (general-create-definer my/leader
-    :states '(normal visual)
+    :states '(normal visual insert emacs)
     :keymaps 'override
-    :prefix "SPC")
+    :prefix "SPC"
+    :non-normal-prefix "M-SPC")
+  ;; 本地 leader：SPC m 放当前模式专属的命令（org/markdown，见各自小节）
+  (general-create-definer my/localleader
+    :states '(normal visual insert emacs)
+    :prefix "SPC m"
+    :non-normal-prefix "M-SPC m")
   (my/leader
-    ":"  '(execute-extended-command :wk "M-x")
+    ":"   '(execute-extended-command :wk "M-x")
+    ;; 顶层快捷入口（Doom 同款）
+    "SPC" '(my/find-file-in-project      :wk "项目内找文件")
+    "."   '(find-file                    :wk "打开文件")
+    ","   '(consult-buffer               :wk "切换 buffer")
+    "/"   '(consult-ripgrep              :wk "项目内搜索")
+    "*"   '(my/search-symbol-in-project  :wk "项目内搜光标词")
+    "'"   '(vertico-repeat               :wk "重开上次搜索")
+    "`"   '(evil-switch-to-windows-last-buffer :wk "上一个 buffer")
+    ";"   '(eval-expression              :wk "执行表达式")
+    "u"   '(universal-argument           :wk "前缀参数")
+    "x"   '(scratch-buffer               :wk "scratch")
+    "X"   '(org-capture                  :wk "capture")
+    "RET" '(consult-bookmark             :wk "书签")
+    "m"   '(:ignore t :wk "本模式")
     ;; f: 文件
     "f"  '(:ignore t :wk "文件")
     "ff" '(find-file    :wk "打开文件")
     "fr" '(consult-recent-file :wk "最近文件")
     "fs" '(save-buffer  :wk "保存")
-    "fi" '((lambda () (interactive)
-             (find-file (expand-file-name "init.el" user-emacs-directory)))
-           :wk "打开 init.el")
+    "fS" '(write-file   :wk "另存为")
+    "fR" '(rename-visited-file :wk "重命名/移动")
+    "fD" '(my/delete-this-file :wk "删除当前文件")
+    "fy" '(my/yank-file-path   :wk "复制路径")
+    "fY" '(my/yank-relative-path :wk "复制项目相对路径")
+    "fd" '(dired        :wk "打开目录")
+    "fi" '(my/open-config :wk "打开 init.el")
+    "fp" '(my/open-config :wk "打开 init.el")
     ;; b: buffer
     "b"  '(:ignore t :wk "buffer")
     "bb" '(consult-buffer      :wk "切换")
     "bd" '(kill-current-buffer :wk "关闭")
+    "bk" '(kill-current-buffer :wk "关闭")
+    "bn" '(next-buffer         :wk "下一个")
+    "bp" '(previous-buffer     :wk "上一个")
+    "b]" '(next-buffer         :wk "下一个")
+    "b[" '(previous-buffer     :wk "上一个")
+    "bl" '(evil-switch-to-windows-last-buffer :wk "上次的 buffer")
+    "bN" '(evil-buffer-new     :wk "新建空 buffer")
+    "bs" '(save-buffer         :wk "保存")
+    "bS" '(save-some-buffers   :wk "全部保存")
+    "br" '(revert-buffer-quick :wk "从磁盘重载")
+    "bx" '(scratch-buffer      :wk "scratch")
+    "bi" '(ibuffer             :wk "ibuffer 列表")
+    "bz" '(bury-buffer         :wk "放到最后")
+    "bm" '(bookmark-set        :wk "设书签")
+    "bM" '(bookmark-delete     :wk "删书签")
     ;; s: 搜索
     "s"  '(:ignore t :wk "搜索")
     "ss" '(consult-line    :wk "当前文件")
+    "sb" '(consult-line    :wk "当前文件")
+    "sp" '(consult-ripgrep :wk "项目内")
+    "sd" '(my/search-cwd   :wk "当前目录")
+    "si" '(consult-imenu   :wk "imenu 跳转")
+    "so" '(consult-outline :wk "标题大纲")
+    "sm" '(consult-bookmark :wk "书签")
+    "sr" '(consult-mark    :wk "mark 位置")
     "sn" '(my/search-notes :wk "搜索笔记")
+    ;; n: 笔记（Doom 的 notes 分组）
+    "n"  '(:ignore t :wk "笔记")
+    "na" '(org-agenda      :wk "agenda")
+    "nf" '((lambda () (interactive)
+             (let ((default-directory org-directory))
+               (call-interactively #'find-file)))
+           :wk "打开笔记")
+    "ns" '(my/search-notes :wk "搜索笔记")
+    ;; i: 插入
+    "i"  '(:ignore t :wk "插入")
+    "iy" '(consult-yank-pop :wk "从剪贴历史")
+    "iu" '(insert-char      :wk "unicode 字符")
+    "ie" '(emoji-search     :wk "emoji")
+    ;; h: 帮助（helpful）
+    "h"  '(:ignore t :wk "帮助")
+    "hf" '(helpful-callable :wk "函数")
+    "hv" '(helpful-variable :wk "变量")
+    "hk" '(helpful-key      :wk "按键")
+    "hx" '(helpful-command  :wk "命令")
+    "ho" '(helpful-symbol   :wk "任意符号")
+    "h." '(helpful-at-point :wk "光标处符号")
+    "hm" '(describe-mode    :wk "当前模式")
+    "hb" '(describe-bindings :wk "全部键位")
+    "hF" '(describe-face    :wk "face")
+    "h'" '(describe-char    :wk "光标处字符")
+    "hp" '(describe-package :wk "包")
+    "hi" '(info             :wk "info 手册")
+    "hl" '(view-lossage     :wk "最近按键")
+    "ht" '(consult-theme    :wk "换主题")
+    "hr" '(my/reload-config :wk "重载 init.el")
+    ;; P: 项目（Doom 用 SPC p，这里 SPC p 已给 prompt 库）
+    "P"  '(:ignore t :wk "项目")
+    "Pp" '(project-switch-project :wk "切换项目")
+    "Pf" '(project-find-file      :wk "找文件")
+    "Ps" '(consult-ripgrep        :wk "搜索")
+    "Pb" '(consult-project-buffer :wk "项目 buffer")
+    "Pd" '(project-dired          :wk "项目根目录")
+    "Pk" '(project-kill-buffers   :wk "关闭项目 buffer")
     ;; y: 复制 prompt
     "y"  '(my/copy-prompt :wk "复制 buffer/选区")
     ;; p: prompt 库
@@ -199,25 +365,42 @@
     "oa" '(org-agenda  :wk "agenda")
     "oc" '(org-capture :wk "capture")
     "oo" '((lambda () (interactive) (dired org-directory)) :wk "打开笔记目录")
+    "o-" '(dired-jump  :wk "当前文件所在目录")
     ;; w: 窗口
     "w"  '(:ignore t :wk "窗口")
     "wv" '(split-window-right   :wk "垂直分屏")
     "ws" '(split-window-below   :wk "水平分屏")
     "wd" '(delete-window        :wk "关闭窗口")
+    "wc" '(delete-window        :wk "关闭窗口")
     "wo" '(delete-other-windows :wk "只留当前")
+    "ww" '(other-window         :wk "下一个窗口")
+    "w=" '(balance-windows      :wk "等分")
+    "wu" '(winner-undo          :wk "撤销布局")
+    "wr" '(winner-redo          :wk "重做布局")
     "wh" '(windmove-left  :wk "←")
     "wj" '(windmove-down  :wk "↓")
     "wk" '(windmove-up    :wk "↑")
     "wl" '(windmove-right :wk "→")
+    "wH" '(evil-window-move-far-left  :wk "窗口移到最左")
+    "wJ" '(evil-window-move-very-bottom :wk "窗口移到最下")
+    "wK" '(evil-window-move-very-top  :wk "窗口移到最上")
+    "wL" '(evil-window-move-far-right :wk "窗口移到最右")
     ;; t: 切换
     "t"  '(:ignore t :wk "切换")
     "tt" '(modus-themes-toggle :wk "深/浅主题")
     "ti" '(my/toggle-images    :wk "内联图片")
     "tm" '(my/markdown-toggle-markup :wk "markdown 标记")
     "tp" '(markdown-preview-mode     :wk "markdown 预览")
+    "tl" '(display-line-numbers-mode :wk "行号")
+    "tw" '(visual-line-mode          :wk "软换行")
+    "tr" '(read-only-mode            :wk "只读")
+    "tf" '(toggle-frame-fullscreen   :wk "全屏")
     ;; q: 退出
     "q"  '(:ignore t :wk "退出")
-    "qq" '(save-buffers-kill-terminal :wk "退出 Emacs")))
+    "qq" '(save-buffers-kill-terminal :wk "退出 Emacs")
+    "qr" '(restart-emacs              :wk "重启 Emacs")
+    "qf" '(delete-frame               :wk "关闭窗口框架")
+    "qQ" '(kill-emacs                 :wk "不保存直接退出")))
 
 ;;; ---------- 输入法联动（自写，替代 sis） ----------
 ;; 行为：回 normal 自动切英文；回 insert 恢复离开时的输入法（按 buffer 记忆）。
@@ -323,8 +506,19 @@
   (save-buffer)
   (server-edit))
 
+(defvar my/server--client-dir nil
+  "本次 server 请求里 emacsclient 的工作目录（claude code/codex 所在的项目）。")
+
+(defun my/server--capture-client-dir (orig files proc &rest args)
+  "server-visit-files 期间把客户端工作目录放进 `my/server--client-dir'。
+emacsclient 会把自己的 cwd 发给 server（存在进程属性里），钩子里拿不到。"
+  (let ((my/server--client-dir
+         (and (processp proc) (process-get proc 'server-client-directory))))
+    (apply orig files proc args)))
+
 (defun my/server--visit-setup ()
-  "server 打开文件时：抢焦点；临时 prompt 文件按 markdown 对待。"
+  "server 打开文件时：抢焦点；临时 prompt 文件按 markdown 对待，
+代码根目录取 emacsclient 的工作目录（@ 补全列该项目的文件）。"
   ;; 记住来源终端，把 Emacs 拉到前台
   (when (display-graphic-p)
     (setq my/server--caller-app (my/server--frontmost-bundle-id))
@@ -334,7 +528,10 @@
              (eq major-mode 'fundamental-mode)
              (string-match-p "\\`/\\(?:private/\\)?\\(?:var/folders\\|tmp\\)/"
                              (expand-file-name buffer-file-name)))
-    (markdown-mode))
+    (markdown-mode)
+    ;; 临时文件不在任何项目里，@ 补全会退到临时目录本身；改用 CLI 的 cwd
+    (when my/server--client-dir
+      (setq-local my/code-root (file-name-as-directory my/server--client-dir))))
   (goto-char (point-max))               ; 光标停在草稿末尾接着写
   ;; vim 习惯：ZZ = 保存并返回 CLI
   (when (bound-and-true-p evil-local-mode)
@@ -347,6 +544,7 @@
     (setq my/server--caller-app nil)))
 
 (with-eval-after-load 'server
+  (advice-add 'server-visit-files :around #'my/server--capture-client-dir)
   (add-hook 'server-visit-hook #'my/server--visit-setup)
   (add-hook 'server-done-hook #'my/server--return-focus)
   ;; :wq/:q 直接走，不再询问「buffer 仍有客户端」
@@ -785,6 +983,24 @@ alt 撑显示，空 alt 会整行不可见，看起来像粘贴失败。"
           ("DOING"  . warning)                 ; 橙：进行中
           ("VERIFY" . font-lock-constant-face)))) ; 蓝：等验收，最该看
 
+;; SPC m：org 专属命令（Doom 的 localleader 布局）
+(with-eval-after-load 'org
+  (my/localleader
+    :keymaps 'org-mode-map
+    "t"  '(org-todo             :wk "切换状态")
+    "q"  '(org-set-tags-command :wk "打标签")
+    "l"  '(org-insert-link      :wk "插入链接")
+    "x"  '(org-toggle-checkbox  :wk "勾选框")
+    "e"  '(org-export-dispatch  :wk "导出")
+    "'"  '(org-edit-special     :wk "编辑代码块")
+    "."  '(consult-org-heading  :wk "跳到标题")
+    "r"  '(org-refile           :wk "refile")
+    "A"  '(org-archive-subtree  :wk "归档")
+    "d"  '(:ignore t :wk "日期")
+    "ds" '(org-schedule         :wk "排期")
+    "dd" '(org-deadline         :wk "截止")
+    "dt" '(org-time-stamp       :wk "时间戳")))
+
 (setq org-capture-templates
       '(("t" "待办" entry (file+headline org-default-notes-file "Tasks")
          "* NEW %?\n  %U")
@@ -808,7 +1024,16 @@ alt 撑显示，空 alt 会整行不可见，看起来像粘贴失败。"
   ;; header-scaling 相关 defcustom 用 custom-initialize-default，
   ;; :custom 路径不会触发它们的 :set，这里手动应用一次缩放 face
   (markdown-update-header-faces markdown-header-scaling
-                                markdown-header-scaling-values))
+                                markdown-header-scaling-values)
+  ;; SPC m：markdown 专属命令
+  (my/localleader
+    :keymaps 'markdown-mode-map
+    "p"  '(markdown-preview-mode       :wk "浏览器预览")
+    "x"  '(markdown-toggle-gfm-checkbox :wk "勾选框")
+    "l"  '(markdown-insert-link        :wk "插入链接")
+    "i"  '(markdown-insert-image       :wk "插入图片")
+    "t"  '(markdown-insert-table       :wk "插入表格")
+    "."  '(consult-outline             :wk "跳到标题")))
 
 ;; 标题/列表图标化：#→◉○◈…、-→•。只是显示层替换，文件内容不变。
 (defconst my/md-header-icons '("◉" "○" "◈" "◇" "▸" "▹")

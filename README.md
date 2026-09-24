@@ -1,10 +1,10 @@
 # ~/.emacs.d
 
 精简配置，两个定位：**codex/claude code 的 prompt 编辑器** + org/markdown 笔记。
-evil（vim 键位），外部包 13 个：evil、evil-collection、general、markdown-mode、
-markdown-preview-mode（浏览器预览）、corfu、cape（补全弹窗）、vertico、orderless、
-marginalia、consult（minibuffer）、dashboard、nerd-icons（启动页），
-其余用 Emacs 内置功能。
+evil（vim 键位，leader 布局参照 Doom Emacs），外部包 15 个：evil、evil-collection、
+evil-escape（jk 退出 insert）、general、markdown-mode、markdown-preview-mode（浏览器预览）、
+corfu、cape（补全弹窗）、vertico、orderless、marginalia、consult（minibuffer）、
+dashboard、nerd-icons（启动页）、helpful（帮助页），其余用 Emacs 内置功能。
 
 启动页显示最近文件和所有项目的待办需求（TODO/DOING），条目上回车直达；
 `r`/`a` 跳到对应区块。
@@ -14,26 +14,55 @@ marginalia、consult（minibuffer）、dashboard、nerd-icons（启动页），
 
 首次启动会自动从 MELPA 装包，等一会儿即可。笔记目录默认 `~/org/`。
 
-## 键位表（normal/visual 模式下按 SPC）
+## 键位表（Doom 风格）
+
+normal/visual 模式按 `SPC`，insert 模式按 `M-SPC`（Option+空格）。insert 模式下快速敲
+`jk` 回 normal。按下前缀后停 0.2 秒会弹出 which-key 提示，下表只列常用的。
 
 | 键 | 功能 |
 |---|---|
-| `SPC f f / f r / f s / f i` | 打开文件 / 最近文件 / 保存 / 打开 init.el |
-| `SPC b b / b d` | 切 buffer / 关 buffer |
-| `SPC s s / s n` | 当前文件行搜索 / 笔记目录全文搜索（均实时预览，consult） |
+| `SPC SPC` | 项目内找文件（不在项目里就是普通打开文件） |
+| `SPC . / SPC ,` | 打开文件 / 切 buffer |
+| `SPC / / SPC *` | 项目内全文搜索 / 项目内搜光标处的词 |
+| `SPC '` | 重开上一次的搜索（结果列表原样回来） |
+| `` SPC ` `` | 切回上一个 buffer |
+| `SPC x / SPC X` | scratch / org capture |
+| `SPC RET` | 跳书签（`SPC b m` 设书签） |
+| `SPC ; / SPC : / SPC u` | 执行表达式 / M-x / 前缀参数 |
+| `SPC f f / f r / f s / f S` | 打开文件 / 最近文件 / 保存 / 另存为 |
+| `SPC f R / f D / f d` | 重命名或移动当前文件 / 删除当前文件（进废纸篓）/ 打开目录 |
+| `SPC f y / f Y` | 复制当前文件路径 / 相对项目根的路径 |
+| `SPC f i`（= `f p`） | 打开 init.el |
+| `SPC b b / b d / b n / b p / b l` | 切换 / 关闭 / 下一个 / 上一个 / 上次的 buffer |
+| `SPC b N / b r / b S / b i / b x` | 新建空 buffer / 从磁盘重载 / 全部保存 / ibuffer / scratch |
+| `SPC s s / s p / s d / s n` | 当前文件行搜索 / 项目内 / 当前目录 / 笔记目录（均实时预览） |
+| `SPC s o / s i / s m / s r` | 标题大纲跳转 / imenu / 书签 / mark 位置 |
 | `SPC y` | buffer/选区入剪贴板（自动去行尾空白、压缩空行） |
 | `SPC p n / p f / p s / p i` | prompt 库：新建（选项目→选模板，输新项目名自动建目录）/ 打开 / 全文搜索 / 插入代码文件 |
 | `SPC p v / p c` | 剪贴板图片 / 框选截图 → 存所属项目的 `img/`（不在项目里存库根 `img/`），插成 `![]()` 或 `[[file:]]` |
 | `SPC p r / p l` | 当前 prompt 登记进项目 `需求.org`（TODO+链接，自动去重）/ 打开项目需求列表 |
-| `SPC t i` | 内联图片显示开/关（org 与 markdown 通用；默认不预览） |
-| `SPC t m` | markdown 标记符号显示开/关（`**`、`` ` ``、`#`，默认隐藏） |
-| `SPC t p` | markdown 浏览器实时预览开/关（保存自动刷新） |
-| `SPC o a / o c / o o` | org agenda / capture / 打开笔记目录 |
-| `SPC w v / w s / w d / w o / w hjkl` | 分屏、关窗口、窗口间移动 |
-| `SPC t t` | 深/浅主题切换 |
-| `SPC q q` | 退出 |
-| `SPC :` | M-x |
+| `SPC P p / P f / P s / P b / P d / P k` | 项目（project.el）：切换 / 找文件 / 搜索 / 项目 buffer / 根目录 / 关闭项目 buffer。Doom 放在 `SPC p`，这里 `SPC p` 已给 prompt 库 |
+| `SPC n a / n f / n s` | 笔记：agenda / 打开笔记文件 / 搜索笔记 |
+| `SPC o a / o c / o o / o -` | org agenda / capture / 打开笔记目录 / 当前文件所在目录 |
+| `SPC i y / i u / i e` | 插入：剪贴历史 / unicode 字符 / emoji |
+| `SPC h f / h v / h k / h x / h .` | 帮助（helpful）：函数 / 变量 / 按键 / 命令 / 光标处符号 |
+| `SPC h m / h b / h F / h ' / h t` | 当前模式 / 全部键位 / face / 光标处字符 / 换主题 |
+| `SPC h r` | 重新加载 init.el |
+| `SPC w v / w s / w d / w o / w w / w =` | 垂直分屏 / 水平分屏 / 关窗口 / 只留当前 / 下一个窗口 / 等分 |
+| `SPC w hjkl / w HJKL / w u / w r` | 窗口间移动 / 把窗口挪到四边 / 撤销、重做窗口布局 |
+| `SPC t t / t i / t m / t p` | 深浅主题 / 内联图片（默认不预览）/ markdown 标记显示 / markdown 浏览器预览 |
+| `SPC t l / t w / t r / t f` | 行号 / 软换行 / 只读 / 全屏 |
+| `SPC q q / q r / q Q` | 退出 / 重启 Emacs / 不保存直接退出 |
 | `C-c f` | 手动补全文件路径，连按轮换候选（`C-x C-f` 保持为 find-file） |
+
+`SPC m` 是本地 leader，只放当前模式的命令：
+
+| 模式 | 键 |
+|---|---|
+| org | `t` 切状态、`q` 标签、`l` 链接、`x` 勾选框、`.` 跳标题、`r` refile、`A` 归档、`e` 导出、`'` 编辑代码块、`d s / d d / d t` 排期 / 截止 / 时间戳 |
+| markdown | `p` 浏览器预览、`x` 勾选框、`l` 链接、`i` 图片、`t` 表格、`.` 跳标题 |
+
+`C-h f/v/k/x/o` 也都换成了 helpful 版本的帮助页。
 
 补全弹窗（corfu + cape）：输入路径（`~/`、`/`、`../`）或词语时自动弹出候选，
 `C-n/C-p` 选择、TAB 确认。自动弹窗嫌吵可在 init.el 里把 `corfu-auto` 设为 nil，
@@ -87,7 +116,8 @@ Emacs 启动时开了 server，终端里 `ec 文件`（= `emacsclient -n`，已�
 **Ctrl+G 外部编辑**（claude code/codex）已做专门适配：按下后 Emacs 自动到
 前台，临时文件自动按 markdown 处理（软换行/高亮/补全/SPC p 工具都在），光标停在
 草稿末尾；写完 `ZZ`（= 保存并返回，也可 `:wq` / `C-x #`），内容回填 CLI 且焦点
-自动切回来源终端，全程不碰鼠标。
+自动切回来源终端，全程不碰鼠标。临时文件不属于任何项目，所以 `@文件` 补全的
+代码根目录取 emacsclient 的工作目录，也就是 claude code/codex 所在的项目。
 
 ## prompt 模板
 
